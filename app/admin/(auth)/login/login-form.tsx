@@ -7,7 +7,6 @@ import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 import { loginAction } from '@/server/actions/auth';
 
 const schema = z.object({
@@ -96,7 +95,8 @@ export function LoginForm() {
         <Button
           type="submit"
           variant="primary"
-          className={cn('h-13 w-full text-[15px]')}
+          size="lg"
+          className="w-full tracking-normal"
           disabled={pending}
         >
           {pending ? 'Entrando…' : 'Entrar al panel'}
