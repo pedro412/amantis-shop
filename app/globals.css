@@ -2,26 +2,86 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+/*
+ * Design tokens — see /Users/pedro412/Downloads/design_handoff_amantis_shop/README.md
+ * All colors converted from hex to HSL channel triplets so Tailwind can compose
+ * them with `<alpha-value>` (e.g. `bg-primary/20`).
+ */
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+    /* Brand crimson */
+    --primary: 351 79% 27%;
+    --primary-foreground: 33 38% 96%;
+    --primary-hover: 350 80% 21%;
+    --primary-soft: 18 50% 92%;
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+    /* Warm neutrals */
+    --bg: 33 38% 96%;
+    --surface: 0 0% 100%;
+    --surface-alt: 34 38% 92%;
+
+    /* Rose accents */
+    --rose: 7 32% 70%;
+    --rose-light: 13 38% 87%;
+
+    /* Foregrounds */
+    --fg: 20 13% 9%;
+    --fg-muted: 24 11% 38%;
+    --fg-subtle: 22 9% 57%;
+    --fg-inverse: 33 38% 96%;
+
+    /* Borders */
+    --border: 33 30% 87%;
+    --border-strong: 34 24% 78%;
+
+    /* Semantic */
+    --success: 101 31% 33%;
+    --warning: 34 70% 39%;
+    --danger: 0 53% 39%;
+    --info: 213 36% 36%;
+
+    --radius: 10px;
+  }
+
+  /* Reset font + base body styles. iOS won't auto-zoom on inputs ≥ 16px. */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-bg font-sans text-body text-fg;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif font-medium;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px; /* prevent iOS auto-zoom */
+  }
+
+  *,
+  ::before,
+  ::after {
+    @apply border-border;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  .eyebrow {
+    @apply font-sans text-eyebrow font-medium uppercase;
   }
 }
