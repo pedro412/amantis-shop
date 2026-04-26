@@ -3,8 +3,8 @@
 import { AuthError } from 'next-auth';
 import { z } from 'zod';
 
-import { signIn } from '@/auth';
-import { ADMIN_PATH } from '@/server/lib/auth-routes';
+import { signIn, signOut } from '@/auth';
+import { ADMIN_PATH, LOGIN_PATH } from '@/server/lib/auth-routes';
 
 const schema = z.object({
   email: z.string().email(),
@@ -56,4 +56,8 @@ export async function loginAction(
 
     throw err;
   }
+}
+
+export async function logoutAction(): Promise<void> {
+  await signOut({ redirectTo: LOGIN_PATH });
 }
