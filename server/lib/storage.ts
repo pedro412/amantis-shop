@@ -1,6 +1,6 @@
 import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 
-import { r2, r2Bucket, r2PublicUrl } from '@/server/lib/r2';
+import { getR2Bucket, getR2Client, getR2PublicUrl } from '@/server/lib/r2';
 
 type UploadInput = {
   key: string;
@@ -15,9 +15,9 @@ export async function uploadObject({
   contentType,
   cacheControl = 'public, max-age=31536000, immutable',
 }: UploadInput): Promise<{ key: string; url: string }> {
-  await r2.send(
+  await getR2Client().send(
     new PutObjectCommand({
-      Bucket: r2Bucket,
+      Bucket: getR2Bucket(),
       Key: key,
       Body: body,
       ContentType: contentType,
@@ -28,9 +28,9 @@ export async function uploadObject({
 }
 
 export async function deleteObject(key: string): Promise<void> {
-  await r2.send(new DeleteObjectCommand({ Bucket: r2Bucket, Key: key }));
+  await getR2Client().send(new DeleteObjectCommand({ Bucket: getR2Bucket(), Key: key }));
 }
 
 export function getPublicUrl(key: string): string {
-  return `${r2PublicUrl}/${encodeURI(key)}`;
+  return `${getR2PublicUrl()}/${encodeURI(key)}`;
 }

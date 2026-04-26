@@ -2,7 +2,7 @@ import { HeadBucketCommand } from '@aws-sdk/client-s3';
 import { NextResponse } from 'next/server';
 
 import { prisma } from '@/server/lib/prisma';
-import { r2, r2Bucket } from '@/server/lib/r2';
+import { getR2Bucket, getR2Client } from '@/server/lib/r2';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -20,7 +20,7 @@ async function checkDb(): Promise<CheckResult> {
 
 async function checkR2(): Promise<CheckResult> {
   try {
-    await r2.send(new HeadBucketCommand({ Bucket: r2Bucket }));
+    await getR2Client().send(new HeadBucketCommand({ Bucket: getR2Bucket() }));
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
