@@ -38,3 +38,6 @@ next-env.d.ts
 
 # prisma generated client
 /server/lib/generated
+
+# claude code project workspace
+.claude/

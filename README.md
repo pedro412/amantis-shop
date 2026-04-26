@@ -42,15 +42,15 @@ Open http://localhost:3000.
 
 ## Scripts
 
-| Command            | What it does                                |
-| ------------------ | ------------------------------------------- |
-| `pnpm dev`         | Start dev server (Turbopack)                |
-| `pnpm build`       | Production build                            |
-| `pnpm start`       | Run the production build                    |
-| `pnpm lint`        | ESLint (`next/core-web-vitals` + Prettier)  |
-| `pnpm typecheck`   | TypeScript check, no emit                   |
-| `pnpm format`      | Format the repo with Prettier               |
-| `pnpm format:check`| Verify formatting in CI                     |
+| Command             | What it does                               |
+| ------------------- | ------------------------------------------ |
+| `pnpm dev`          | Start dev server (Turbopack)               |
+| `pnpm build`        | Production build                           |
+| `pnpm start`        | Run the production build                   |
+| `pnpm lint`         | ESLint (`next/core-web-vitals` + Prettier) |
+| `pnpm typecheck`    | TypeScript check, no emit                  |
+| `pnpm format`       | Format the repo with Prettier              |
+| `pnpm format:check` | Verify formatting in CI                    |
 
 ## Branches
 
