@@ -51,10 +51,22 @@ export async function loginAction(
           error: 'Demasiados intentos. Intenta de nuevo en 15 minutos.',
         };
       }
-      return { error: 'Correo o contraseña incorrectos.' };
+      if (code === 'invalid-credentials') {
+        return { error: 'Correo o contraseña incorrectos.' };
+      }
+      // Unknown auth-layer failure (e.g., DB unreachable, misconfigured
+      // provider). Surface a distinct message so a real outage isn't
+      // misread as bad credentials, and log so it's visible in Vercel.
+      console.error('[loginAction] unexpected auth error', err);
+      return {
+        error: 'Algo salió mal. Intenta de nuevo en unos segundos.',
+      };
     }
 
-    throw err;
+    console.error('[loginAction] unexpected error', err);
+    return {
+      error: 'Algo salió mal. Intenta de nuevo en unos segundos.',
+    };
   }
 }
 
