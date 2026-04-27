@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { AlertCircle } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
@@ -95,12 +96,13 @@ export function LoginForm() {
         </a>
 
         {serverError && (
-          <p
+          <div
             role="alert"
-            className="mt-1 font-sans text-[13px] text-destructive"
+            className="flex items-start gap-2.5 rounded-md border border-destructive/30 bg-destructive/10 px-3.5 py-3 font-sans text-[13px] font-medium text-destructive"
           >
-            {serverError}
-          </p>
+            <AlertCircle aria-hidden className="mt-px h-4 w-4 shrink-0" strokeWidth={2} />
+            <span>{serverError}</span>
+          </div>
         )}
       </div>
 
