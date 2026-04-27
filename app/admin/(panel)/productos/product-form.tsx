@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { ImageUpload } from '@/components/admin/image-upload';
+import { ImageGallery } from '@/components/admin/image-gallery';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -56,7 +56,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 type CategoryOption = { id: string; name: string; isChild: boolean; parentName: string | null };
 
-type Draft = { values: Partial<FormValues>; imageKey: string | null; savedAt: number };
+type Draft = { values: Partial<FormValues>; imageKeys: string[]; savedAt: number };
 
 const EMPTY_VALUES: FormValues = {
   name: '',
@@ -74,7 +74,7 @@ const EMPTY_VALUES: FormValues = {
 
 export function ProductForm({ categories }: { categories: CategoryOption[] }) {
   const router = useRouter();
-  const [imageKey, setImageKey] = useState<string | null>(null);
+  const [imageKeys, setImageKeys] = useState<string[]>([]);
   const [serverError, setServerError] = useState<string | undefined>();
   const [serverFieldErrors, setServerFieldErrors] = useState<ProductFieldErrors>({});
   const [draftRestored, setDraftRestored] = useState(false);
@@ -111,7 +111,9 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
         return;
       }
       reset({ ...EMPTY_VALUES, ...draft.values });
-      if (draft.imageKey) setImageKey(draft.imageKey);
+      if (Array.isArray(draft.imageKeys) && draft.imageKeys.length > 0) {
+        setImageKeys(draft.imageKeys);
+      }
       // If the user had typed a slug different from a fresh slugify, treat
       // the slug as user-touched so we don't clobber it on next name edit.
       const v = { ...EMPTY_VALUES, ...draft.values };
@@ -139,13 +141,13 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
       (allValues.name && allValues.name.length > 0) ||
       (allValues.description && allValues.description.length > 0) ||
       (allValues.price && allValues.price.length > 0) ||
-      imageKey !== null;
+      imageKeys.length > 0;
     if (!hasContent) return;
     const t = setTimeout(() => {
       try {
         const draft: Draft = {
           values: allValues,
-          imageKey,
+          imageKeys,
           savedAt: Date.now(),
         };
         window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
@@ -155,14 +157,14 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
       }
     }, DRAFT_DEBOUNCE_MS);
     return () => clearTimeout(t);
-  }, [allValues, imageKey]);
+  }, [allValues, imageKeys]);
 
   const discardDraft = () => {
     try {
       window.localStorage.removeItem(DRAFT_KEY);
     } catch {}
     reset(EMPTY_VALUES);
-    setImageKey(null);
+    setImageKeys([]);
     slugTouchedRef.current = false;
     setDraftRestored(false);
   };
@@ -181,7 +183,7 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
       fd.set('stock', values.stock);
       if (values.sku) fd.set('sku', values.sku);
       fd.set('categoryId', values.categoryId);
-      if (imageKey) fd.set('imageKey', imageKey);
+      for (const k of imageKeys) fd.append('imageKey', k);
       fd.set('isActive', values.isActive ? 'true' : 'false');
       fd.set('isFeatured', values.isFeatured ? 'true' : 'false');
 
@@ -235,12 +237,13 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
         </div>
       )}
 
-      <Field htmlFor="image" label="Imagen principal">
-        <ImageUpload
+      <Field htmlFor="image" label="Fotos">
+        <ImageGallery
           namespace="products"
-          value={imageKey}
-          onChange={setImageKey}
-          hint="Toca o arrastra · JPG, PNG, WebP (opcional)"
+          value={imageKeys}
+          onChange={setImageKeys}
+          maxImages={8}
+          hint="Hasta 8 fotos · arrastra para reordenar · la primera es la principal."
         />
       </Field>
 

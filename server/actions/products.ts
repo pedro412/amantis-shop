@@ -21,7 +21,7 @@ export type ProductFieldErrors = Partial<
     | 'stock'
     | 'sku'
     | 'categoryId'
-    | 'imageKey',
+    | 'imageKeys',
     string
   >
 >;
@@ -82,13 +82,10 @@ const createSchema = z.object({
     .optional()
     .transform((v) => (v ? v : null)),
   categoryId: z.string().min(1, 'Selecciona una categoría.'),
-  imageKey: z
-    .string()
-    .trim()
-    .min(1)
-    .max(200)
-    .optional()
-    .transform((v) => (v ? v : null)),
+  imageKeys: z
+    .array(z.string().trim().min(1).max(200))
+    .max(8, 'Máximo 8 imágenes.')
+    .default([]),
   isActive: z
     .union([z.literal('true'), z.literal('false')])
     .transform((v) => v === 'true'),
@@ -109,7 +106,7 @@ function fieldErrorsFrom(err: z.ZodError): ProductFieldErrors {
     'stock',
     'sku',
     'categoryId',
-    'imageKey',
+    'imageKeys',
   ];
   for (const issue of err.issues) {
     const key = issue.path[0];
@@ -136,6 +133,12 @@ export async function createProductAction(
   const guard = await requireAdmin();
   if ('error' in guard) return { error: guard.error };
 
+  // Multi-image gallery sends one `imageKey` entry per photo, in display
+  // order. Strip non-strings (Files etc., shouldn't happen but be defensive).
+  const imageKeys = formData
+    .getAll('imageKey')
+    .filter((v): v is string => typeof v === 'string' && v.length > 0);
+
   const parsed = createSchema.safeParse({
     name: formData.get('name'),
     slug: formData.get('slug'),
@@ -146,7 +149,7 @@ export async function createProductAction(
     stock: formData.get('stock') ?? '0',
     sku: formData.get('sku') ?? undefined,
     categoryId: formData.get('categoryId'),
-    imageKey: formData.get('imageKey') ?? undefined,
+    imageKeys,
     isActive: formData.get('isActive'),
     isFeatured: formData.get('isFeatured'),
   });
@@ -190,8 +193,15 @@ export async function createProductAction(
         categoryId: data.categoryId,
         isActive: data.isActive,
         isFeatured: data.isFeatured,
-        ...(data.imageKey
-          ? { images: { create: { key: data.imageKey, sortOrder: 0 } } }
+        ...(data.imageKeys.length > 0
+          ? {
+              images: {
+                create: data.imageKeys.map((key, idx) => ({
+                  key,
+                  sortOrder: idx,
+                })),
+              },
+            }
           : {}),
       },
       select: { id: true },
