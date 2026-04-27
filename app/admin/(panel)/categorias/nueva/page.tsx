@@ -4,6 +4,7 @@ import { ChevronLeft } from 'lucide-react';
 
 import { auth } from '@/auth';
 import { AdminHeader } from '@/components/admin/admin-header';
+import { prisma } from '@/server/lib/prisma';
 
 import { CategoryForm } from '../category-form';
 
@@ -12,8 +13,17 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function NuevaCategoriaPage() {
-  const session = await auth();
+  const [session, parents] = await Promise.all([
+    auth(),
+    prisma.category.findMany({
+      where: { deletedAt: null, parentId: null },
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true },
+    }),
+  ]);
 
   return (
     <>
@@ -32,7 +42,7 @@ export default async function NuevaCategoriaPage() {
         }
       />
       <div className="px-5 py-5">
-        <CategoryForm mode={{ kind: 'create' }} />
+        <CategoryForm mode={{ kind: 'create' }} parents={parents} />
       </div>
     </>
   );

@@ -20,15 +20,20 @@ import { softDeleteCategoryAction } from '@/server/actions/categories';
 type Props = {
   categoryId: string;
   productCount: number;
+  childCount: number;
 };
 
-export function DangerZone({ categoryId, productCount }: Props) {
+export function DangerZone({ categoryId, productCount, childCount }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | undefined>();
 
-  const blocked = productCount > 0;
+  // Children block first — it's a structural problem (orphans), products is a
+  // content problem. Mirrors the server's priority in softDeleteCategoryAction.
+  const blockReason: 'children' | 'products' | null =
+    childCount > 0 ? 'children' : productCount > 0 ? 'products' : null;
+  const blocked = blockReason !== null;
 
   const onConfirmDelete = () => {
     if (blocked) return;
@@ -70,9 +75,11 @@ export function DangerZone({ categoryId, productCount }: Props) {
               {blocked ? 'No se puede eliminar' : '¿Eliminar esta categoría?'}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {blocked
-                ? `Esta categoría tiene ${productCount} ${productCount === 1 ? 'producto asociado' : 'productos asociados'}. Desactívala con el toggle de arriba en lugar de eliminarla.`
-                : 'Esta acción la oculta del catálogo y del panel. Podrás restaurarla manualmente más tarde.'}
+              {blockReason === 'children'
+                ? `Esta categoría tiene ${childCount} ${childCount === 1 ? 'subcategoría' : 'subcategorías'}. Muévelas a otra categoría primero.`
+                : blockReason === 'products'
+                  ? `Esta categoría tiene ${productCount} ${productCount === 1 ? 'producto asociado' : 'productos asociados'}. Desactívala con el toggle de arriba en lugar de eliminarla.`
+                  : 'Esta acción la oculta del catálogo y del panel. Podrás restaurarla manualmente más tarde.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
 

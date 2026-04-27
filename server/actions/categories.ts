@@ -10,7 +10,9 @@ import { prisma } from '@/server/lib/prisma';
 
 const LIST_PATH = '/admin/categorias';
 
-export type CategoryFieldErrors = Partial<Record<'name' | 'slug' | 'description' | 'imageKey', string>>;
+export type CategoryFieldErrors = Partial<
+  Record<'name' | 'slug' | 'description' | 'imageKey' | 'parentId', string>
+>;
 
 export type CreateCategoryState =
   | { ok: true; id: string }
@@ -24,7 +26,9 @@ export type UpdateCategoryState =
 
 export type DeleteCategoryState =
   | { ok: true }
-  | { error: string; productCount?: number };
+  | { error: string; productCount?: number; childCount?: number };
+
+const NO_PARENT_SENTINEL = '__none__';
 
 const baseSchema = z.object({
   name: z
@@ -51,6 +55,12 @@ const baseSchema = z.object({
     .max(200)
     .optional()
     .transform((v) => (v ? v : null)),
+  parentId: z
+    .string()
+    .trim()
+    .max(64)
+    .optional()
+    .transform((v) => (v && v !== NO_PARENT_SENTINEL ? v : null)),
   isActive: z
     .union([z.literal('true'), z.literal('false')])
     .transform((v) => v === 'true'),
@@ -64,7 +74,13 @@ function fieldErrorsFrom(err: z.ZodError): CategoryFieldErrors {
   const out: CategoryFieldErrors = {};
   for (const issue of err.issues) {
     const key = issue.path[0];
-    if (key === 'name' || key === 'slug' || key === 'description' || key === 'imageKey') {
+    if (
+      key === 'name' ||
+      key === 'slug' ||
+      key === 'description' ||
+      key === 'imageKey' ||
+      key === 'parentId'
+    ) {
       if (!out[key]) out[key] = issue.message;
     }
   }
@@ -88,6 +104,66 @@ function isUniqueSlugError(err: unknown): boolean {
   );
 }
 
+/**
+ * Application-level depth/cycle check. Schema allows arbitrary trees, but
+ * the admin UX only supports two levels: top-level → one row of children.
+ *
+ * Rules:
+ *  - parentId === null is always fine.
+ *  - parentId === self.id rejected (defense in depth — UI hides self too).
+ *  - Parent must exist, not deleted, and itself be top-level.
+ *  - On update: if self has live children, refuse to make it a child
+ *    (otherwise its children would jump to depth 3).
+ */
+async function assertParentValid({
+  selfId,
+  parentId,
+}: {
+  selfId: string | null;
+  parentId: string | null;
+}): Promise<{ ok: true } | { fieldErrors: CategoryFieldErrors }> {
+  if (parentId === null) return { ok: true };
+  if (selfId && parentId === selfId) {
+    return {
+      fieldErrors: { parentId: 'No puede ser su propia categoría padre.' },
+    };
+  }
+
+  const parent = await prisma.category.findUnique({
+    where: { id: parentId },
+    select: { id: true, deletedAt: true, parentId: true },
+  });
+  if (!parent || parent.deletedAt) {
+    return { fieldErrors: { parentId: 'La categoría padre no existe.' } };
+  }
+  if (parent.parentId !== null) {
+    return {
+      fieldErrors: {
+        parentId: 'La categoría padre debe ser de primer nivel.',
+      },
+    };
+  }
+
+  if (selfId) {
+    const self = await prisma.category.findUnique({
+      where: { id: selfId },
+      select: {
+        _count: { select: { children: { where: { deletedAt: null } } } },
+      },
+    });
+    if (self && self._count.children > 0) {
+      return {
+        fieldErrors: {
+          parentId:
+            'Esta categoría tiene subcategorías. Muévelas a otra categoría primero.',
+        },
+      };
+    }
+  }
+
+  return { ok: true };
+}
+
 export async function createCategoryAction(
   _prev: CreateCategoryState,
   formData: FormData,
@@ -100,6 +176,7 @@ export async function createCategoryAction(
     slug: formData.get('slug'),
     description: formData.get('description') ?? undefined,
     imageKey: formData.get('imageKey') ?? undefined,
+    parentId: formData.get('parentId') ?? undefined,
     isActive: formData.get('isActive'),
   });
   if (!parsed.success) {
@@ -109,6 +186,14 @@ export async function createCategoryAction(
     };
   }
 
+  const parentCheck = await assertParentValid({
+    selfId: null,
+    parentId: parsed.data.parentId,
+  });
+  if ('fieldErrors' in parentCheck) {
+    return { error: 'Revisa los campos marcados.', fieldErrors: parentCheck.fieldErrors };
+  }
+
   try {
     const created = await prisma.category.create({
       data: {
@@ -116,6 +201,7 @@ export async function createCategoryAction(
         slug: parsed.data.slug,
         description: parsed.data.description,
         imageKey: parsed.data.imageKey,
+        parentId: parsed.data.parentId,
         isActive: parsed.data.isActive,
       },
       select: { id: true },
@@ -147,6 +233,7 @@ export async function updateCategoryAction(
     slug: formData.get('slug'),
     description: formData.get('description') ?? undefined,
     imageKey: formData.get('imageKey') ?? undefined,
+    parentId: formData.get('parentId') ?? undefined,
     isActive: formData.get('isActive'),
   });
   if (!parsed.success) {
@@ -154,6 +241,14 @@ export async function updateCategoryAction(
       error: 'Revisa los campos marcados.',
       fieldErrors: fieldErrorsFrom(parsed.error),
     };
+  }
+
+  const parentCheck = await assertParentValid({
+    selfId: parsed.data.id,
+    parentId: parsed.data.parentId,
+  });
+  if ('fieldErrors' in parentCheck) {
+    return { error: 'Revisa los campos marcados.', fieldErrors: parentCheck.fieldErrors };
   }
 
   try {
@@ -164,6 +259,7 @@ export async function updateCategoryAction(
         slug: parsed.data.slug,
         description: parsed.data.description,
         imageKey: parsed.data.imageKey,
+        parentId: parsed.data.parentId,
         isActive: parsed.data.isActive,
       },
     });
@@ -200,11 +296,25 @@ export async function softDeleteCategoryAction(
       where: { id },
       select: {
         deletedAt: true,
-        _count: { select: { products: { where: { deletedAt: null } } } },
+        _count: {
+          select: {
+            products: { where: { deletedAt: null } },
+            children: { where: { deletedAt: null } },
+          },
+        },
       },
     });
     if (!category || category.deletedAt) {
       return { error: 'No encontramos esa categoría.' };
+    }
+    // Children block first — it's a structural problem (orphans), products
+    // is a content problem (data loss). Either way: refuse and explain.
+    if (category._count.children > 0) {
+      return {
+        error:
+          'Esta categoría tiene subcategorías. Muévelas a otra categoría primero.',
+        childCount: category._count.children,
+      };
     }
     if (category._count.products > 0) {
       return {
