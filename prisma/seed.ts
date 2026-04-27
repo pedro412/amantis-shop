@@ -12,7 +12,7 @@
  */
 import bcrypt from 'bcryptjs';
 
-import { PrismaClient } from '../server/lib/generated/prisma';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
