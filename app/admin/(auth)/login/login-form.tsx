@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useSearchParams } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -17,6 +18,9 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export function LoginForm() {
+  const searchParams = useSearchParams();
+  const justReset = searchParams.get('reset') === 'ok';
+
   const [serverError, setServerError] = useState<string | undefined>();
   const [pending, startTransition] = useTransition();
   const {
@@ -47,6 +51,15 @@ export function LoginForm() {
       className="flex flex-1 flex-col"
     >
       <div className="mt-9 flex flex-col gap-3.5">
+        {justReset && (
+          <div
+            role="status"
+            className="rounded-md border border-success/30 bg-success/10 px-3.5 py-3 font-sans text-[13px] text-success"
+          >
+            Tu contraseña se actualizó. Inicia sesión con la nueva.
+          </div>
+        )}
+
         <Field label="Correo" htmlFor="email" error={errors.email?.message}>
           <Input
             id="email"
