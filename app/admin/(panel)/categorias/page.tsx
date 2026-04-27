@@ -5,7 +5,7 @@ import { ChevronRight, ImageIcon, Plus } from 'lucide-react';
 import { auth } from '@/auth';
 import { AdminHeader } from '@/components/admin/admin-header';
 import { Button } from '@/components/ui/button';
-import { imagePublicUrl } from '@/lib/image-url';
+import { tryImagePublicUrl } from '@/lib/image-url';
 import { cn } from '@/lib/utils';
 import { prisma } from '@/server/lib/prisma';
 
@@ -159,11 +159,12 @@ function Thumb({
   size?: number;
 }) {
   const dim = size === 32 ? 'h-8 w-8' : 'h-10 w-10';
-  if (imageKey) {
+  const src = imageKey ? tryImagePublicUrl(imageKey, 'thumb') : null;
+  if (src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={imagePublicUrl(imageKey, 'thumb')}
+        src={src}
         alt={alt}
         width={size}
         height={size}

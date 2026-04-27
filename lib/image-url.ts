@@ -32,3 +32,17 @@ export function imagePublicUrls(keyBase: string): Record<ImageVariant, string> {
     full: imagePublicUrl(keyBase, 'full'),
   };
 }
+
+/**
+ * Non-throwing variant for server-rendered lists where one missing config
+ * value shouldn't take down the whole page. Returns `null` if the base URL
+ * isn't set so the caller can fall back to a placeholder.
+ */
+export function tryImagePublicUrl(keyBase: string, variant: ImageVariant): string | null {
+  try {
+    return imagePublicUrl(keyBase, variant);
+  } catch (err) {
+    console.error('[tryImagePublicUrl] resolve failed', err);
+    return null;
+  }
+}
