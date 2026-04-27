@@ -102,6 +102,9 @@ const config: Config = {
         lg: '14px',
         xl: '20px',
       },
+      spacing: {
+        13: '3.25rem', // 52px — design's primary CTA height
+      },
       boxShadow: {
         sm: '0 1px 2px rgba(60, 40, 30, 0.04)',
         md: '0 2px 8px rgba(60, 40, 30, 0.06)',
