@@ -28,6 +28,8 @@ export type DeleteCategoryState =
   | { ok: true }
   | { error: string; productCount?: number; childCount?: number };
 
+export type ReorderCategoriesState = { ok: true } | { error: string };
+
 const NO_PARENT_SENTINEL = '__none__';
 
 const baseSchema = z.object({
@@ -347,5 +349,62 @@ export async function softDeleteCategoryAction(
   } catch (err) {
     console.error('[softDeleteCategoryAction] failed', err);
     return { error: 'No pudimos eliminar la categoría. Intenta de nuevo.' };
+  }
+}
+
+const reorderSchema = z.object({
+  parentId: z.string().min(1).max(64).nullable(),
+  orderedIds: z.array(z.string().min(1).max(64)).min(1).max(100),
+});
+
+/**
+ * Persist a new sortOrder for every id in `orderedIds` (0..n) within a single
+ * scope — top-level (`parentId === null`) or the children of one parent.
+ *
+ * Refuses if any id doesn't belong to the supplied scope, which catches the
+ * "another tab moved or deleted these while you were dragging" race.
+ */
+export async function reorderCategoriesAction(input: {
+  parentId: string | null;
+  orderedIds: string[];
+}): Promise<ReorderCategoriesState> {
+  const guard = await requireAdmin();
+  if ('error' in guard) return { error: guard.error };
+
+  const parsed = reorderSchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: 'Datos inválidos.' };
+  }
+  const { parentId, orderedIds } = parsed.data;
+
+  // Dedupe defensively — a malformed client could send the same id twice.
+  if (new Set(orderedIds).size !== orderedIds.length) {
+    return { error: 'Datos inválidos.' };
+  }
+
+  try {
+    const matched = await prisma.category.count({
+      where: { id: { in: orderedIds }, parentId, deletedAt: null },
+    });
+    if (matched !== orderedIds.length) {
+      return {
+        error:
+          'La lista cambió mientras la reordenabas. Recarga e intenta de nuevo.',
+      };
+    }
+
+    await prisma.$transaction(
+      orderedIds.map((id, idx) =>
+        prisma.category.update({
+          where: { id },
+          data: { sortOrder: idx },
+        }),
+      ),
+    );
+    revalidatePath(LIST_PATH);
+    return { ok: true };
+  } catch (err) {
+    console.error('[reorderCategoriesAction] failed', err);
+    return { error: 'No pudimos guardar el nuevo orden. Intenta de nuevo.' };
   }
 }
