@@ -4,7 +4,6 @@ import { auth } from '@/auth';
 import {
   ALLOWED_INPUT_TYPES,
   IMAGE_NAMESPACES,
-  IMAGE_VARIANTS,
   MAX_UPLOAD_BYTES,
   type AllowedInputType,
   type ImageNamespace,
@@ -101,5 +100,3 @@ export async function deleteImageAction(keyBase: string): Promise<DeleteImageSta
   }
 }
 
-/** Re-export so call sites can build URLs without depending on the lib path. */
-export { IMAGE_VARIANTS };
