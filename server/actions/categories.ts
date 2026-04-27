@@ -295,6 +295,7 @@ export async function softDeleteCategoryAction(
     const category = await prisma.category.findUnique({
       where: { id },
       select: {
+        slug: true,
         deletedAt: true,
         _count: {
           select: {
@@ -324,9 +325,22 @@ export async function softDeleteCategoryAction(
       };
     }
 
+    // The DB-level `slug @unique` constraint is global, not partial-on-
+    // `deletedAt`, so a soft-deleted row would otherwise squat on its slug
+    // and block any future create with the same value. Tombstone the slug
+    // here so the original is reusable. Truncate first to leave room for the
+    // suffix without overflowing the 80-char Zod limit on future rows.
+    const SUFFIX = `__del_${Date.now()}`;
+    const baseSlug = category.slug.slice(0, 80 - SUFFIX.length);
+    const tombstonedSlug = `${baseSlug}${SUFFIX}`;
+
     await prisma.category.update({
       where: { id },
-      data: { deletedAt: new Date(), isActive: false },
+      data: {
+        deletedAt: new Date(),
+        isActive: false,
+        slug: tombstonedSlug,
+      },
     });
     revalidatePath(LIST_PATH);
     return { ok: true };
