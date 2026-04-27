@@ -1,6 +1,11 @@
 import type { NextAuthConfig } from 'next-auth';
 
-import { ADMIN_PATH, LOGIN_PATH, isAdminPath } from '@/server/lib/auth-routes';
+import {
+  ADMIN_PATH,
+  LOGIN_PATH,
+  isAdminPath,
+  isPublicAuthPath,
+} from '@/server/lib/auth-routes';
 
 /**
  * Edge-safe Auth.js config.
@@ -23,12 +28,12 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const onAdmin = isAdminPath(nextUrl.pathname);
-      const onLogin = nextUrl.pathname === LOGIN_PATH;
+      const onPublicAuth = isPublicAuthPath(nextUrl.pathname);
 
-      if (onLogin && isLoggedIn) {
+      if (onPublicAuth && isLoggedIn) {
         return Response.redirect(new URL(ADMIN_PATH, nextUrl));
       }
-      if (onAdmin && !onLogin && !isLoggedIn) {
+      if (onAdmin && !onPublicAuth && !isLoggedIn) {
         return false; // triggers redirect to LOGIN_PATH (per `pages.signIn`)
       }
       return true;

@@ -1,16 +1,15 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 
 import { Logo } from '@/components/logo';
 
-import { LoginForm } from './login-form';
+import { ForgotForm } from './forgot-form';
 
 export const metadata: Metadata = {
-  title: 'Acceder · Ámantis',
+  title: 'Recuperar contraseña · Ámantis',
   robots: { index: false, follow: false },
 };
 
-export default function AdminLoginPage() {
+export default function ForgotPasswordPage() {
   return (
     <main className="flex min-h-dvh flex-col bg-surface px-7 pb-8 pt-8">
       <header className="mt-5 flex items-center gap-2">
@@ -23,16 +22,15 @@ export default function AdminLoginPage() {
 
       <section className="mt-16">
         <h1 className="font-serif text-[32px] font-medium leading-[1.1] tracking-[-0.01em] text-fg">
-          Hola.
+          ¿Olvidaste tu contraseña?
         </h1>
         <p className="mt-2.5 font-sans text-[15px] leading-[1.55] text-fg-muted">
-          Inicia sesión para gestionar tu catálogo.
+          Escribe el correo de tu cuenta y te enviaremos un enlace para crear
+          una nueva.
         </p>
       </section>
 
-      <Suspense fallback={<div className="flex flex-1" />}>
-        <LoginForm />
-      </Suspense>
+      <ForgotForm />
     </main>
   );
 }
