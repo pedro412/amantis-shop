@@ -4,11 +4,11 @@ import { auth } from '@/auth';
 import {
   ALLOWED_INPUT_TYPES,
   IMAGE_NAMESPACES,
-  IMAGE_VARIANTS,
   MAX_UPLOAD_BYTES,
   type AllowedInputType,
   type ImageNamespace,
   type UploadedImage,
+  deleteImageVariants,
   processAndUploadImage,
 } from '@/server/lib/images';
 
@@ -73,5 +73,30 @@ export async function uploadImageAction(
   }
 }
 
-/** Re-export so call sites can build URLs without depending on the lib path. */
-export { IMAGE_VARIANTS };
+export type DeleteImageState =
+  | { ok: true }
+  | { error: string }
+  | undefined;
+
+/**
+ * Auth-gated removal. Best-effort: if R2 returns 404 for any variant
+ * (e.g. partial earlier upload) we still report success, because the
+ * caller's intent — "make this image gone" — is satisfied.
+ */
+export async function deleteImageAction(keyBase: string): Promise<DeleteImageState> {
+  const session = await auth();
+  if (!session?.user?.email) {
+    return { error: 'Sesión expirada. Vuelve a iniciar sesión.' };
+  }
+  if (typeof keyBase !== 'string' || !keyBase.includes('/')) {
+    return { error: 'Identificador de imagen inválido.' };
+  }
+  try {
+    await deleteImageVariants(keyBase);
+    return { ok: true };
+  } catch (err) {
+    console.error('[deleteImageAction] failed', { keyBase, err });
+    return { error: 'No pudimos eliminar la imagen. Intenta de nuevo.' };
+  }
+}
+
