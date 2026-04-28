@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, RotateCcw } from 'lucide-react';
+import { AlertCircle, CheckCircle2, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import {
   createProductAction,
   type ProductFieldErrors,
+  updateProductAction,
 } from '@/server/actions/products';
 
 const DECIMAL_RE = /^\d+(\.\d{1,2})?$/;
@@ -56,6 +57,24 @@ type FormValues = z.infer<typeof formSchema>;
 
 type CategoryOption = { id: string; name: string; isChild: boolean; parentName: string | null };
 
+type ProductDefaults = {
+  id: string;
+  name: string;
+  slug: string;
+  shortDescription: string | null;
+  description: string | null;
+  price: string;
+  compareAtPrice: string | null;
+  stock: number;
+  sku: string | null;
+  categoryId: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  imageKeys: string[];
+};
+
+type Mode = { kind: 'create' } | { kind: 'edit'; product: ProductDefaults };
+
 type Draft = { values: Partial<FormValues>; imageKeys: string[]; savedAt: number };
 
 const EMPTY_VALUES: FormValues = {
@@ -72,14 +91,42 @@ const EMPTY_VALUES: FormValues = {
   isFeatured: false,
 };
 
-export function ProductForm({ categories }: { categories: CategoryOption[] }) {
+export function ProductForm({
+  mode,
+  categories,
+}: {
+  mode: Mode;
+  categories: CategoryOption[];
+}) {
   const router = useRouter();
-  const [imageKeys, setImageKeys] = useState<string[]>([]);
+  const isEdit = mode.kind === 'edit';
+
+  const initialValues: FormValues = isEdit
+    ? {
+        name: mode.product.name,
+        slug: mode.product.slug,
+        shortDescription: mode.product.shortDescription ?? '',
+        description: mode.product.description ?? '',
+        price: mode.product.price,
+        compareAtPrice: mode.product.compareAtPrice ?? '',
+        stock: String(mode.product.stock),
+        sku: mode.product.sku ?? '',
+        categoryId: mode.product.categoryId,
+        isActive: mode.product.isActive,
+        isFeatured: mode.product.isFeatured,
+      }
+    : EMPTY_VALUES;
+
+  const [imageKeys, setImageKeys] = useState<string[]>(
+    isEdit ? mode.product.imageKeys : [],
+  );
   const [serverError, setServerError] = useState<string | undefined>();
   const [serverFieldErrors, setServerFieldErrors] = useState<ProductFieldErrors>({});
   const [draftRestored, setDraftRestored] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
   const [pending, startTransition] = useTransition();
-  const slugTouchedRef = useRef(false);
+  // In edit mode the slug is by definition user-decided already; never auto-overwrite.
+  const slugTouchedRef = useRef(isEdit);
 
   const {
     register,
@@ -91,7 +138,7 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     mode: 'onSubmit',
-    defaultValues: EMPTY_VALUES,
+    defaultValues: initialValues,
   });
 
   const nameValue = watch('name');
@@ -99,8 +146,10 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
   const isActiveValue = watch('isActive');
   const isFeaturedValue = watch('isFeatured');
 
-  // Restore draft from localStorage on mount.
+  // Draft autosave/restore is create-only. In edit mode the DB is the source
+  // of truth and a stale draft would silently overwrite real data.
   useEffect(() => {
+    if (isEdit) return;
     try {
       const raw = window.localStorage.getItem(DRAFT_KEY);
       if (!raw) return;
@@ -134,9 +183,10 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
     }
   }, [nameValue, setValue]);
 
-  // Debounced draft save. Only saves when there's something worth keeping.
+  // Debounced draft save. Create-only — see comment on the restore effect.
   const allValues = watch();
   useEffect(() => {
+    if (isEdit) return;
     const hasContent =
       (allValues.name && allValues.name.length > 0) ||
       (allValues.description && allValues.description.length > 0) ||
@@ -157,7 +207,7 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
       }
     }, DRAFT_DEBOUNCE_MS);
     return () => clearTimeout(t);
-  }, [allValues, imageKeys]);
+  }, [allValues, imageKeys, isEdit]);
 
   const discardDraft = () => {
     try {
@@ -172,6 +222,7 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
   const onSubmit = handleSubmit((values) => {
     setServerError(undefined);
     setServerFieldErrors({});
+    setSavedFlash(false);
     startTransition(async () => {
       const fd = new FormData();
       fd.set('name', values.name);
@@ -186,6 +237,19 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
       for (const k of imageKeys) fd.append('imageKey', k);
       fd.set('isActive', values.isActive ? 'true' : 'false');
       fd.set('isFeatured', values.isFeatured ? 'true' : 'false');
+
+      if (isEdit) {
+        fd.set('id', mode.product.id);
+        const result = await updateProductAction(undefined, fd);
+        if (result && 'error' in result) {
+          setServerError(result.error);
+          setServerFieldErrors(result.fieldErrors ?? {});
+          return;
+        }
+        setSavedFlash(true);
+        router.refresh();
+        return;
+      }
 
       const result = await createProductAction(undefined, fd);
       if (result && 'error' in result) {
@@ -414,13 +478,29 @@ export function ProductForm({ categories }: { categories: CategoryOption[] }) {
         </div>
       )}
 
+      {savedFlash && !serverError && (
+        <div
+          role="status"
+          className="flex items-start gap-2.5 rounded-md border border-success/30 bg-success/10 px-3.5 py-3 font-sans text-[13px] font-medium text-success"
+        >
+          <CheckCircle2 aria-hidden className="mt-px h-4 w-4 shrink-0" strokeWidth={2} />
+          <span>Cambios guardados.</span>
+        </div>
+      )}
+
       <Button
         type="submit"
         size="lg"
         className="mt-2 w-full tracking-normal"
         disabled={pending}
       >
-        {pending ? 'Creando…' : 'Crear producto'}
+        {pending
+          ? isEdit
+            ? 'Guardando…'
+            : 'Creando…'
+          : isEdit
+            ? 'Guardar cambios'
+            : 'Crear producto'}
       </Button>
     </form>
   );
