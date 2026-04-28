@@ -1,9 +1,18 @@
+import { cookies } from 'next/headers';
+
+import { AgeGate } from '@/components/public/age-gate';
 import { CartProvider } from '@/components/public/cart-context';
 import { PublicBottomNav } from '@/components/public/public-bottom-nav';
 import { PublicFooter } from '@/components/public/public-footer';
 import { PublicHeader } from '@/components/public/public-header';
+import { AGE_COOKIE, AGE_VALUE } from '@/lib/age-gate';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
+  // SSR cookie check is the source of truth so verified visitors never see the
+  // gate flicker. Children render in the DOM behind the gate either way so
+  // crawlers index the catalog regardless of cookie state.
+  const ageVerified = cookies().get(AGE_COOKIE)?.value === AGE_VALUE;
+
   return (
     <CartProvider>
       {/* Outer container reserves space for the fixed bottom nav so the footer's
@@ -17,6 +26,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         <PublicFooter />
         <PublicBottomNav />
       </div>
+      {!ageVerified && <AgeGate />}
     </CartProvider>
   );
 }
