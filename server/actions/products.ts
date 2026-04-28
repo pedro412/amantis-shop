@@ -332,6 +332,7 @@ export async function createProductAction(
     });
     revalidatePath(PRODUCTS_PATH);
     revalidatePath('/');
+    revalidatePath('/categoria/[slug]', 'page');
     return { ok: true, id: created.id };
   } catch (err) {
     const fieldErrors = uniqueConflictFieldErrors(
@@ -453,6 +454,7 @@ export async function updateProductAction(
     ]);
     revalidatePath(PRODUCTS_PATH);
     revalidatePath('/');
+    revalidatePath('/categoria/[slug]', 'page');
     revalidatePath(`${PRODUCTS_PATH}/${data.id}`);
     return { ok: true };
   } catch (err) {
@@ -528,6 +530,7 @@ export async function softDeleteProductAction(
     ]);
     revalidatePath(PRODUCTS_PATH);
     revalidatePath('/');
+    revalidatePath('/categoria/[slug]', 'page');
     return { ok: true };
   } catch (err) {
     console.error('[softDeleteProductAction] failed', err);
