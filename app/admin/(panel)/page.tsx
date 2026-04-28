@@ -1,12 +1,26 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 
 import { auth } from '@/auth';
 import { AdminHeader } from '@/components/admin/admin-header';
+import { Button } from '@/components/ui/button';
+import { prisma } from '@/server/lib/prisma';
+import {
+  activeProductsWhere,
+  lowStockProductsWhere,
+  noImageProductsWhere,
+  orphanCategoryProductsWhere,
+} from '@/server/lib/product-filters';
+
+import { DashboardCards } from './dashboard-cards';
 
 export const metadata: Metadata = {
   title: 'Panel · Ámantis',
   robots: { index: false, follow: false },
 };
+
+export const dynamic = 'force-dynamic';
 
 const greetingFor = (date: Date): string => {
   const hour = date.getHours();
@@ -23,9 +37,25 @@ const formatToday = (date: Date): string =>
   }).format(date);
 
 export default async function AdminDashboardPage() {
-  const session = await auth();
-  const firstName = session?.user?.name?.split(' ')[0] ?? '';
   const today = new Date();
+
+  const [
+    session,
+    totalCatalog,
+    activeCount,
+    lowStockCount,
+    noImageCount,
+    orphanCategoryCount,
+  ] = await Promise.all([
+    auth(),
+    prisma.product.count({ where: { deletedAt: null } }),
+    prisma.product.count({ where: activeProductsWhere }),
+    prisma.product.count({ where: lowStockProductsWhere }),
+    prisma.product.count({ where: noImageProductsWhere }),
+    prisma.product.count({ where: orphanCategoryProductsWhere }),
+  ]);
+
+  const firstName = session?.user?.name?.split(' ')[0] ?? '';
 
   return (
     <>
@@ -46,17 +76,37 @@ export default async function AdminDashboardPage() {
           </h2>
         </section>
 
-        <section className="rounded-xl border border-border bg-surface p-5">
-          <p className="font-sans text-[13px] leading-relaxed text-fg-muted">
-            Aquí verás métricas de tu catálogo, atajos y los últimos productos
-            editados. Estamos preparando esa vista — por ahora puedes navegar a
-            <span className="font-medium text-fg"> Productos</span>,
-            <span className="font-medium text-fg"> Categorías</span> y
-            <span className="font-medium text-fg"> Ajustes</span> desde la barra
-            inferior.
-          </p>
-        </section>
+        {totalCatalog === 0 ? (
+          <EmptyCatalog />
+        ) : (
+          <DashboardCards
+            activeCount={activeCount}
+            lowStockCount={lowStockCount}
+            noImageCount={noImageCount}
+            orphanCategoryCount={orphanCategoryCount}
+          />
+        )}
       </div>
     </>
+  );
+}
+
+function EmptyCatalog() {
+  return (
+    <section className="rounded-xl border border-border bg-surface p-5">
+      <h3 className="font-serif text-h3 font-medium text-fg">
+        Empieza por tu primer producto
+      </h3>
+      <p className="mt-1.5 font-sans text-[13px] leading-relaxed text-fg-muted">
+        Cuando cargues productos verás aquí su resumen: cuántos están activos,
+        cuáles necesitan más fotos y los que tienen stock bajo.
+      </p>
+      <Button asChild size="lg" className="mt-4">
+        <Link href="/admin/productos/nuevo">
+          <Plus aria-hidden className="h-4 w-4" strokeWidth={2} />
+          Crear producto
+        </Link>
+      </Button>
+    </section>
   );
 }

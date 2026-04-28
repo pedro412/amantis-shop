@@ -42,6 +42,7 @@ export function ProductosFilters({ tabs, categories }: Props) {
   const currentCategoryId = searchParams.get('categoryId') ?? '';
   const currentLowStock = searchParams.get('lowStock') === '1';
   const currentNoImage = searchParams.get('noImage') === '1';
+  const currentOrphanCategory = searchParams.get('orphanCategory') === '1';
 
   const [q, setQ] = useState(currentQ);
 
@@ -76,7 +77,10 @@ export function ProductosFilters({ tabs, categories }: Props) {
   };
 
   const activeFilterCount =
-    (currentCategoryId ? 1 : 0) + (currentLowStock ? 1 : 0) + (currentNoImage ? 1 : 0);
+    (currentCategoryId ? 1 : 0) +
+    (currentLowStock ? 1 : 0) +
+    (currentNoImage ? 1 : 0) +
+    (currentOrphanCategory ? 1 : 0);
 
   return (
     <div className="flex flex-col gap-3">
@@ -171,6 +175,15 @@ export function ProductosFilters({ tabs, categories }: Props) {
                 checked={currentNoImage}
                 onCheckedChange={(checked) => setParam('noImage', checked ? '1' : null)}
               />
+
+              <ToggleRow
+                title="Categoría eliminada"
+                description="Productos cuya categoría fue borrada."
+                checked={currentOrphanCategory}
+                onCheckedChange={(checked) =>
+                  setParam('orphanCategory', checked ? '1' : null)
+                }
+              />
             </div>
 
             <div className="mt-6 flex items-center justify-between">
@@ -181,6 +194,7 @@ export function ProductosFilters({ tabs, categories }: Props) {
                   setParam('categoryId', null);
                   setParam('lowStock', null);
                   setParam('noImage', null);
+                  setParam('orphanCategory', null);
                 }}
               >
                 Limpiar filtros
