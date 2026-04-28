@@ -26,7 +26,15 @@ export type HomeCategory = {
   productCount: number;
 };
 
-/** Top-level categories the user wants visible, in display order. */
+/**
+ * Top-level categories the user wants visible, in display order.
+ *
+ * Product count includes the category's direct products plus its visible
+ * direct children's products — this mirrors the listing scope at
+ * `/categoria/[slug]`, so the count on the card and the count in the
+ * listing header always match. Visibility filters (active + image-required)
+ * also mirror the public listing rules.
+ */
 export async function getHomeCategories(): Promise<HomeCategory[]> {
   const rows = await prisma.category.findMany({
     where: { parentId: null, isActive: true, deletedAt: null },
@@ -36,20 +44,33 @@ export async function getHomeCategories(): Promise<HomeCategory[]> {
       slug: true,
       name: true,
       imageKey: true,
-      _count: {
-        select: {
-          products: { where: { isActive: true, deletedAt: null } },
-        },
+      children: {
+        where: { isActive: true, deletedAt: null },
+        select: { id: true },
       },
     },
   });
-  return rows.map((c) => ({
-    id: c.id,
-    slug: c.slug,
-    name: c.name,
-    imageKey: c.imageKey,
-    productCount: c._count.products,
-  }));
+
+  return Promise.all(
+    rows.map(async (c) => {
+      const categoryIds = [c.id, ...c.children.map((ch) => ch.id)];
+      const productCount = await prisma.product.count({
+        where: {
+          deletedAt: null,
+          isActive: true,
+          images: { some: {} },
+          categoryId: { in: categoryIds },
+        },
+      });
+      return {
+        id: c.id,
+        slug: c.slug,
+        name: c.name,
+        imageKey: c.imageKey,
+        productCount,
+      };
+    }),
+  );
 }
 
 /** Featured products. Public requires at least one image to show. */

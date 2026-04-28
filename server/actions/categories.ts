@@ -210,6 +210,7 @@ export async function createCategoryAction(
     });
     revalidatePath(LIST_PATH);
     revalidatePath('/');
+    revalidatePath('/categoria/[slug]', 'page');
     return { ok: true, id: created.id };
   } catch (err) {
     if (isUniqueSlugError(err)) {
@@ -268,6 +269,7 @@ export async function updateCategoryAction(
     });
     revalidatePath(LIST_PATH);
     revalidatePath('/');
+    revalidatePath('/categoria/[slug]', 'page');
     revalidatePath(`${LIST_PATH}/${parsed.data.id}`);
     return { ok: true };
   } catch (err) {
@@ -348,6 +350,7 @@ export async function softDeleteCategoryAction(
     });
     revalidatePath(LIST_PATH);
     revalidatePath('/');
+    revalidatePath('/categoria/[slug]', 'page');
     return { ok: true };
   } catch (err) {
     console.error('[softDeleteCategoryAction] failed', err);
@@ -406,6 +409,7 @@ export async function reorderCategoriesAction(input: {
     );
     revalidatePath(LIST_PATH);
     revalidatePath('/');
+    revalidatePath('/categoria/[slug]', 'page');
     return { ok: true };
   } catch (err) {
     console.error('[reorderCategoriesAction] failed', err);
