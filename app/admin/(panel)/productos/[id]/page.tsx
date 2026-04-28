@@ -31,6 +31,16 @@ export default async function EditarProductoPage({
           orderBy: { sortOrder: 'asc' },
           select: { key: true },
         },
+        variants: {
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            id: true,
+            name: true,
+            sku: true,
+            priceOverride: true,
+            stock: true,
+          },
+        },
       },
     }),
     prisma.category.findMany({
@@ -89,6 +99,12 @@ export default async function EditarProductoPage({
               isActive: product.isActive,
               isFeatured: product.isFeatured,
               imageKeys: product.images.map((i) => i.key),
+              variants: product.variants.map((v) => ({
+                name: v.name,
+                sku: v.sku,
+                priceOverride: v.priceOverride ? v.priceOverride.toString() : null,
+                stock: v.stock,
+              })),
             },
           }}
           categories={categories}

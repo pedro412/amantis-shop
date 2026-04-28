@@ -21,9 +21,16 @@ export type ProductFieldErrors = Partial<
     | 'stock'
     | 'sku'
     | 'categoryId'
-    | 'imageKeys',
+    | 'imageKeys'
+    | 'variants',
     string
   >
+> & {
+  variantRows?: Record<number, VariantRowErrors>;
+};
+
+export type VariantRowErrors = Partial<
+  Record<'name' | 'sku' | 'priceOverride' | 'stock', string>
 >;
 
 export type CreateProductState =
@@ -54,6 +61,28 @@ const decimalOptional = z
   .refine((v) => v === null || DECIMAL_RE.test(v), {
     message: 'Usa un número con máx. 2 decimales.',
   });
+
+const variantSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Ingresa un nombre.')
+    .max(60, 'Máximo 60 caracteres.'),
+  sku: z
+    .string()
+    .trim()
+    .max(60, 'Máximo 60 caracteres.')
+    .optional()
+    .transform((v) => (v && v.length > 0 ? v : null)),
+  priceOverride: decimalOptional,
+  stock: z
+    .string()
+    .trim()
+    .regex(/^\d{1,9}$/, 'Stock inválido.')
+    .transform((v) => Number(v)),
+});
+
+const variantsSchema = z.array(variantSchema).max(20, 'Máximo 20 variantes.').default([]);
 
 const baseSchema = z.object({
   name: z.string().trim().min(1, 'Ingresa un nombre.').max(120, 'Máximo 120 caracteres.'),
@@ -93,6 +122,7 @@ const baseSchema = z.object({
     .array(z.string().trim().min(1).max(200))
     .max(8, 'Máximo 8 imágenes.')
     .default([]),
+  variants: variantsSchema,
   isActive: z
     .union([z.literal('true'), z.literal('false')])
     .transform((v) => v === 'true'),
@@ -107,7 +137,7 @@ const idSchema = z.string().min(1);
 
 function fieldErrorsFrom(err: z.ZodError): ProductFieldErrors {
   const out: ProductFieldErrors = {};
-  const allowed: (keyof ProductFieldErrors)[] = [
+  const allowed = new Set([
     'name',
     'slug',
     'shortDescription',
@@ -118,12 +148,37 @@ function fieldErrorsFrom(err: z.ZodError): ProductFieldErrors {
     'sku',
     'categoryId',
     'imageKeys',
-  ];
+  ]);
+  const variantRowKeys = new Set(['name', 'sku', 'priceOverride', 'stock']);
   for (const issue of err.issues) {
-    const key = issue.path[0];
-    if (typeof key === 'string' && (allowed as string[]).includes(key)) {
-      const k = key as keyof ProductFieldErrors;
-      if (!out[k]) out[k] = issue.message;
+    const [head, idx, leaf] = issue.path;
+    if (head === 'variants' && typeof idx === 'number' && typeof leaf === 'string' && variantRowKeys.has(leaf)) {
+      const rows = (out.variantRows ??= {});
+      const row = (rows[idx] ??= {});
+      const k = leaf as keyof VariantRowErrors;
+      if (!row[k]) row[k] = issue.message;
+      if (!out.variants) out.variants = 'Revisa las variantes marcadas.';
+      continue;
+    }
+    if (typeof head === 'string' && allowed.has(head)) {
+      const k = head as keyof ProductFieldErrors;
+      if (k !== 'variants' && !out[k]) (out as Record<string, string>)[k] = issue.message;
+    }
+  }
+  return out;
+}
+
+function parseVariantsFromForm(formData: FormData): unknown[] {
+  // Each row is sent as one `variant` entry containing JSON; preserves order.
+  const raw = formData.getAll('variant').filter((v): v is string => typeof v === 'string');
+  const out: unknown[] = [];
+  for (const s of raw) {
+    try {
+      out.push(JSON.parse(s));
+    } catch {
+      // Treat malformed rows as a name validation error so the user sees something
+      // actionable instead of a silent drop.
+      out.push({ name: '', stock: '0' });
     }
   }
   return out;
@@ -137,7 +192,10 @@ async function requireAdmin(): Promise<{ ok: true } | { error: string }> {
   return { ok: true };
 }
 
-function uniqueConflictFieldErrors(err: unknown): ProductFieldErrors | null {
+function uniqueConflictFieldErrors(
+  err: unknown,
+  variantSkus?: (string | null)[],
+): ProductFieldErrors | null {
   if (
     err instanceof Prisma.PrismaClientKnownRequestError &&
     err.code === 'P2002'
@@ -148,6 +206,21 @@ function uniqueConflictFieldErrors(err: unknown): ProductFieldErrors | null {
         return { slug: 'Ya existe un producto con ese slug.' };
       }
       if (target.includes('sku')) {
+        // ProductVariant.sku and Product.sku share the global unique namespace
+        // by being indexed separately; we can't tell from `target` alone which
+        // model triggered it. If the conflicting value matches a variant SKU
+        // submitted in this payload, point the error at that row.
+        if (variantSkus && variantSkus.length > 0) {
+          // Best-effort: blame the first variant carrying any submitted SKU,
+          // since the conflict is almost always a duplicate the user just typed.
+          const firstWithSku = variantSkus.findIndex((s) => s !== null && s !== '');
+          if (firstWithSku !== -1) {
+            return {
+              variants: 'Una variante tiene un SKU duplicado.',
+              variantRows: { [firstWithSku]: { sku: 'SKU ya está en uso.' } },
+            };
+          }
+        }
         return { sku: 'Ya existe un producto con ese SKU.' };
       }
     }
@@ -168,6 +241,8 @@ export async function createProductAction(
     .getAll('imageKey')
     .filter((v): v is string => typeof v === 'string' && v.length > 0);
 
+  const variantsRaw = parseVariantsFromForm(formData);
+
   const parsed = createSchema.safeParse({
     name: formData.get('name'),
     slug: formData.get('slug'),
@@ -181,6 +256,7 @@ export async function createProductAction(
     imageKeys,
     isActive: formData.get('isActive'),
     isFeatured: formData.get('isFeatured'),
+    variants: variantsRaw,
   });
 
   if (!parsed.success) {
@@ -191,6 +267,10 @@ export async function createProductAction(
   }
 
   const data = parsed.data;
+  const hasVariants = data.variants.length > 0;
+  const effectiveStock = hasVariants
+    ? data.variants.reduce((acc, v) => acc + v.stock, 0)
+    : data.stock;
 
   // Defense: confirm the chosen category still exists. The select only shows
   // alive categories, but a stale tab + a deleted category would otherwise
@@ -217,7 +297,7 @@ export async function createProductAction(
         compareAtPrice: data.compareAtPrice
           ? new Prisma.Decimal(data.compareAtPrice)
           : null,
-        stock: data.stock,
+        stock: effectiveStock,
         sku: data.sku,
         categoryId: data.categoryId,
         isActive: data.isActive,
@@ -232,13 +312,31 @@ export async function createProductAction(
               },
             }
           : {}),
+        ...(hasVariants
+          ? {
+              variants: {
+                create: data.variants.map((v, idx) => ({
+                  name: v.name,
+                  sku: v.sku,
+                  priceOverride: v.priceOverride
+                    ? new Prisma.Decimal(v.priceOverride)
+                    : null,
+                  stock: v.stock,
+                  sortOrder: idx,
+                })),
+              },
+            }
+          : {}),
       },
       select: { id: true },
     });
     revalidatePath(PRODUCTS_PATH);
     return { ok: true, id: created.id };
   } catch (err) {
-    const fieldErrors = uniqueConflictFieldErrors(err);
+    const fieldErrors = uniqueConflictFieldErrors(
+      err,
+      data.variants.map((v) => v.sku),
+    );
     if (fieldErrors) {
       return { error: 'Revisa los campos marcados.', fieldErrors };
     }
@@ -258,6 +356,8 @@ export async function updateProductAction(
     .getAll('imageKey')
     .filter((v): v is string => typeof v === 'string' && v.length > 0);
 
+  const variantsRaw = parseVariantsFromForm(formData);
+
   const parsed = updateSchema.safeParse({
     id: formData.get('id'),
     name: formData.get('name'),
@@ -272,6 +372,7 @@ export async function updateProductAction(
     imageKeys,
     isActive: formData.get('isActive'),
     isFeatured: formData.get('isFeatured'),
+    variants: variantsRaw,
   });
 
   if (!parsed.success) {
@@ -282,6 +383,10 @@ export async function updateProductAction(
   }
 
   const data = parsed.data;
+  const hasVariants = data.variants.length > 0;
+  const effectiveStock = hasVariants
+    ? data.variants.reduce((acc, v) => acc + v.stock, 0)
+    : data.stock;
 
   const category = await prisma.category.findUnique({
     where: { id: data.categoryId },
@@ -295,12 +400,12 @@ export async function updateProductAction(
   }
 
   try {
-    // Replace all images in one transaction so the resulting set + sortOrder
-    // exactly matches what the gallery sent. R2 cleanup of removed files is
-    // already handled client-side when the user taps the X (best-effort);
-    // this simply syncs DB rows to the displayed order.
+    // Replace images and variants atomically so the persisted set + order
+    // matches what the form sent. R2 cleanup of removed photos is best-effort
+    // client-side; we simply rebuild DB rows here.
     await prisma.$transaction([
       prisma.productImage.deleteMany({ where: { productId: data.id } }),
+      prisma.productVariant.deleteMany({ where: { productId: data.id } }),
       prisma.product.update({
         where: { id: data.id },
         data: {
@@ -312,7 +417,7 @@ export async function updateProductAction(
           compareAtPrice: data.compareAtPrice
             ? new Prisma.Decimal(data.compareAtPrice)
             : null,
-          stock: data.stock,
+          stock: effectiveStock,
           sku: data.sku,
           categoryId: data.categoryId,
           isActive: data.isActive,
@@ -327,6 +432,21 @@ export async function updateProductAction(
                 },
               }
             : {}),
+          ...(hasVariants
+            ? {
+                variants: {
+                  create: data.variants.map((v, idx) => ({
+                    name: v.name,
+                    sku: v.sku,
+                    priceOverride: v.priceOverride
+                      ? new Prisma.Decimal(v.priceOverride)
+                      : null,
+                    stock: v.stock,
+                    sortOrder: idx,
+                  })),
+                },
+              }
+            : {}),
         },
       }),
     ]);
@@ -334,7 +454,10 @@ export async function updateProductAction(
     revalidatePath(`${PRODUCTS_PATH}/${data.id}`);
     return { ok: true };
   } catch (err) {
-    const fieldErrors = uniqueConflictFieldErrors(err);
+    const fieldErrors = uniqueConflictFieldErrors(
+      err,
+      data.variants.map((v) => v.sku),
+    );
     if (fieldErrors) {
       return { error: 'Revisa los campos marcados.', fieldErrors };
     }
@@ -359,7 +482,12 @@ export async function softDeleteProductAction(
   try {
     const product = await prisma.product.findUnique({
       where: { id },
-      select: { slug: true, sku: true, deletedAt: true },
+      select: {
+        slug: true,
+        sku: true,
+        deletedAt: true,
+        variants: { select: { id: true, sku: true } },
+      },
     });
     if (!product || product.deletedAt) {
       return { error: 'No encontramos ese producto.' };
@@ -367,7 +495,7 @@ export async function softDeleteProductAction(
 
     // Same defense as categorías: the column-level unique constraints on
     // slug + sku are global, so a soft-deleted row would squat on those
-    // values forever. Tombstone both so the originals can be reused.
+    // values forever. Tombstone product slug/sku and any variant SKUs too.
     const ts = Date.now();
     const slugSuffix = `__del_${ts}`;
     const tombstonedSlug = `${product.slug.slice(0, 120 - slugSuffix.length)}${slugSuffix}`;
@@ -375,15 +503,27 @@ export async function softDeleteProductAction(
       ? `${product.sku.slice(0, 60 - slugSuffix.length)}${slugSuffix}`
       : null;
 
-    await prisma.product.update({
-      where: { id },
-      data: {
-        deletedAt: new Date(),
-        isActive: false,
-        slug: tombstonedSlug,
-        sku: tombstonedSku,
-      },
-    });
+    await prisma.$transaction([
+      prisma.product.update({
+        where: { id },
+        data: {
+          deletedAt: new Date(),
+          isActive: false,
+          slug: tombstonedSlug,
+          sku: tombstonedSku,
+        },
+      }),
+      ...product.variants
+        .filter((v) => v.sku !== null)
+        .map((v, i) =>
+          prisma.productVariant.update({
+            where: { id: v.id },
+            data: {
+              sku: `${v.sku!.slice(0, 60 - slugSuffix.length - String(i).length - 1)}${slugSuffix}_${i}`,
+            },
+          }),
+        ),
+    ]);
     revalidatePath(PRODUCTS_PATH);
     return { ok: true };
   } catch (err) {

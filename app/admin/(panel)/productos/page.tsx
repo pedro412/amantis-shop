@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ChevronRight, ImageIcon, Package, Plus, SearchX } from 'lucide-react';
+import { ChevronRight, ImageIcon, Layers3, Package, Plus, SearchX } from 'lucide-react';
 
 import { auth } from '@/auth';
 import { AdminHeader } from '@/components/admin/admin-header';
@@ -78,6 +78,7 @@ export default async function ProductosPage({
           take: 1,
           select: { key: true },
         },
+        _count: { select: { variants: true } },
       },
     }),
     Promise.all([
@@ -142,6 +143,7 @@ export default async function ProductosPage({
                 isActive={p.isActive}
                 categoryName={p.category.name}
                 imageKey={p.images[0]?.key ?? null}
+                variantCount={p._count.variants}
               />
             </li>
           ))}
@@ -160,6 +162,7 @@ function ProductCard({
   isActive,
   categoryName,
   imageKey,
+  variantCount,
 }: {
   id: string;
   name: string;
@@ -169,6 +172,7 @@ function ProductCard({
   isActive: boolean;
   categoryName: string;
   imageKey: string | null;
+  variantCount: number;
 }) {
   const src = imageKey ? tryImagePublicUrl(imageKey, 'thumb') : null;
 
@@ -192,13 +196,19 @@ function ProductCard({
             </span>
           ) : null}
         </p>
-        <p
-          className={cn(
-            'mt-0.5 font-sans text-[11px] font-medium',
-            stockToneClass(stock),
+        <p className="mt-0.5 flex items-center gap-1.5 font-sans text-[11px] font-medium">
+          <span className={cn(stockToneClass(stock))}>
+            {stock === 0 ? 'Agotado' : `${stock} en stock`}
+          </span>
+          {variantCount > 0 && (
+            <>
+              <span aria-hidden className="text-fg-subtle">·</span>
+              <span className="inline-flex items-center gap-1 text-fg-muted">
+                <Layers3 aria-hidden className="h-3 w-3" strokeWidth={2} />
+                {variantCount} {variantCount === 1 ? 'variante' : 'variantes'}
+              </span>
+            </>
           )}
-        >
-          {stock === 0 ? 'Agotado' : `${stock} en stock`}
         </p>
       </div>
       <ChevronRight

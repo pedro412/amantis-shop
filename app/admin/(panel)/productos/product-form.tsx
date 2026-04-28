@@ -20,7 +20,10 @@ import {
   createProductAction,
   type ProductFieldErrors,
   updateProductAction,
+  type VariantRowErrors,
 } from '@/server/actions/products';
+
+import { VariantsField, type VariantInput } from './variants-field';
 
 const DECIMAL_RE = /^\d+(\.\d{1,2})?$/;
 const DRAFT_KEY = 'amantis.product-draft.v1';
@@ -71,11 +74,22 @@ type ProductDefaults = {
   isActive: boolean;
   isFeatured: boolean;
   imageKeys: string[];
+  variants: {
+    name: string;
+    sku: string | null;
+    priceOverride: string | null;
+    stock: number;
+  }[];
 };
 
 type Mode = { kind: 'create' } | { kind: 'edit'; product: ProductDefaults };
 
-type Draft = { values: Partial<FormValues>; imageKeys: string[]; savedAt: number };
+type Draft = {
+  values: Partial<FormValues>;
+  imageKeys: string[];
+  variants?: VariantInput[];
+  savedAt: number;
+};
 
 const EMPTY_VALUES: FormValues = {
   name: '',
@@ -120,6 +134,17 @@ export function ProductForm({
   const [imageKeys, setImageKeys] = useState<string[]>(
     isEdit ? mode.product.imageKeys : [],
   );
+  const [variants, setVariants] = useState<VariantInput[]>(
+    isEdit
+      ? mode.product.variants.map((v) => ({
+          rowId: `v-${Math.random().toString(36).slice(2, 10)}`,
+          name: v.name,
+          sku: v.sku ?? '',
+          priceOverride: v.priceOverride ?? '',
+          stock: String(v.stock),
+        }))
+      : [],
+  );
   const [serverError, setServerError] = useState<string | undefined>();
   const [serverFieldErrors, setServerFieldErrors] = useState<ProductFieldErrors>({});
   const [draftRestored, setDraftRestored] = useState(false);
@@ -163,6 +188,9 @@ export function ProductForm({
       if (Array.isArray(draft.imageKeys) && draft.imageKeys.length > 0) {
         setImageKeys(draft.imageKeys);
       }
+      if (Array.isArray(draft.variants) && draft.variants.length > 0) {
+        setVariants(draft.variants);
+      }
       // If the user had typed a slug different from a fresh slugify, treat
       // the slug as user-touched so we don't clobber it on next name edit.
       const v = { ...EMPTY_VALUES, ...draft.values };
@@ -191,13 +219,15 @@ export function ProductForm({
       (allValues.name && allValues.name.length > 0) ||
       (allValues.description && allValues.description.length > 0) ||
       (allValues.price && allValues.price.length > 0) ||
-      imageKeys.length > 0;
+      imageKeys.length > 0 ||
+      variants.length > 0;
     if (!hasContent) return;
     const t = setTimeout(() => {
       try {
         const draft: Draft = {
           values: allValues,
           imageKeys,
+          variants,
           savedAt: Date.now(),
         };
         window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
@@ -207,7 +237,7 @@ export function ProductForm({
       }
     }, DRAFT_DEBOUNCE_MS);
     return () => clearTimeout(t);
-  }, [allValues, imageKeys, isEdit]);
+  }, [allValues, imageKeys, variants, isEdit]);
 
   const discardDraft = () => {
     try {
@@ -215,6 +245,7 @@ export function ProductForm({
     } catch {}
     reset(EMPTY_VALUES);
     setImageKeys([]);
+    setVariants([]);
     slugTouchedRef.current = false;
     setDraftRestored(false);
   };
@@ -231,10 +262,24 @@ export function ProductForm({
       if (values.description) fd.set('description', values.description);
       fd.set('price', values.price);
       if (values.compareAtPrice) fd.set('compareAtPrice', values.compareAtPrice);
-      fd.set('stock', values.stock);
+      // When variants exist the server recomputes stock as their sum, so the
+      // submitted product-level stock is ignored. Send a placeholder so the
+      // schema's required stock field still parses.
+      fd.set('stock', variants.length > 0 ? '0' : values.stock);
       if (values.sku) fd.set('sku', values.sku);
       fd.set('categoryId', values.categoryId);
       for (const k of imageKeys) fd.append('imageKey', k);
+      for (const v of variants) {
+        fd.append(
+          'variant',
+          JSON.stringify({
+            name: v.name,
+            sku: v.sku,
+            priceOverride: v.priceOverride,
+            stock: v.stock,
+          }),
+        );
+      }
       fd.set('isActive', values.isActive ? 'true' : 'false');
       fd.set('isFeatured', values.isFeatured ? 'true' : 'false');
 
@@ -265,10 +310,16 @@ export function ProductForm({
     });
   });
 
-  const fieldErr = (k: keyof ProductFieldErrors): string | undefined => {
+  type ScalarField = Exclude<keyof ProductFieldErrors, 'variantRows'>;
+  const fieldErr = (k: ScalarField): string | undefined => {
     if (k in errors) return (errors as Record<string, { message?: string }>)[k]?.message;
-    return serverFieldErrors[k];
+    const v = serverFieldErrors[k];
+    return typeof v === 'string' ? v : undefined;
   };
+  const variantRowErrors: Record<number, VariantRowErrors> | undefined =
+    serverFieldErrors.variantRows;
+  const variantsTopError =
+    typeof serverFieldErrors.variants === 'string' ? serverFieldErrors.variants : undefined;
 
   const nameError = fieldErr('name');
   const slugError = fieldErr('slug');
@@ -375,7 +426,7 @@ export function ProductForm({
         />
       </Field>
 
-      <div className="grid grid-cols-2 gap-3">
+      {variants.length > 0 ? (
         <Field htmlFor="price" label="Precio (MXN)" error={priceError}>
           <Input
             id="price"
@@ -387,19 +438,33 @@ export function ProductForm({
             {...register('price')}
           />
         </Field>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          <Field htmlFor="price" label="Precio (MXN)" error={priceError}>
+            <Input
+              id="price"
+              type="text"
+              inputMode="decimal"
+              placeholder="0.00"
+              disabled={pending}
+              aria-invalid={!!priceError}
+              {...register('price')}
+            />
+          </Field>
 
-        <Field htmlFor="stock" label="Stock" error={stockError}>
-          <Input
-            id="stock"
-            type="text"
-            inputMode="numeric"
-            placeholder="0"
-            disabled={pending}
-            aria-invalid={!!stockError}
-            {...register('stock')}
-          />
-        </Field>
-      </div>
+          <Field htmlFor="stock" label="Stock" error={stockError}>
+            <Input
+              id="stock"
+              type="text"
+              inputMode="numeric"
+              placeholder="0"
+              disabled={pending}
+              aria-invalid={!!stockError}
+              {...register('stock')}
+            />
+          </Field>
+        </div>
+      )}
 
       <Field
         htmlFor="compareAtPrice"
@@ -449,6 +514,16 @@ export function ProductForm({
           {...register('sku')}
         />
       </Field>
+
+      <VariantsField
+        value={variants}
+        onChange={setVariants}
+        rowErrors={variantRowErrors}
+        disabled={pending}
+      />
+      {variantsTopError && !Object.keys(variantRowErrors ?? {}).length && (
+        <p className="-mt-2 font-sans text-[12px] text-destructive">{variantsTopError}</p>
+      )}
 
       <div className="overflow-hidden rounded-lg border border-border bg-surface">
         <ToggleRow
