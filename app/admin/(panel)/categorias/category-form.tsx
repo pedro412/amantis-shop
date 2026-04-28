@@ -11,6 +11,7 @@ import { ImageUpload } from '@/components/admin/image-upload';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { SLUG_REGEX, slugify } from '@/lib/slugify';
@@ -21,6 +22,8 @@ import {
   updateCategoryAction,
 } from '@/server/actions/categories';
 
+const NO_PARENT = '__none__';
+
 const formSchema = z.object({
   name: z.string().trim().min(1, 'Ingresa un nombre.').max(80, 'Máximo 80 caracteres.'),
   slug: z
@@ -30,10 +33,13 @@ const formSchema = z.object({
     .max(80, 'Máximo 80 caracteres.')
     .regex(SLUG_REGEX, 'Solo minúsculas, números y guiones.'),
   description: z.string().trim().max(500, 'Máximo 500 caracteres.').optional(),
+  parentId: z.string(),
   isActive: z.boolean(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+type ParentOption = { id: string; name: string };
 
 type Mode =
   | { kind: 'create' }
@@ -45,13 +51,20 @@ type Mode =
         slug: string;
         description: string | null;
         imageKey: string | null;
+        parentId: string | null;
         isActive: boolean;
       };
+      hasChildren: boolean;
     };
 
 const DESCRIPTION_LIMIT = 500;
 
-export function CategoryForm({ mode }: { mode: Mode }) {
+type Props = {
+  mode: Mode;
+  parents: ParentOption[];
+};
+
+export function CategoryForm({ mode, parents }: Props) {
   const router = useRouter();
   const isEdit = mode.kind === 'edit';
 
@@ -78,9 +91,16 @@ export function CategoryForm({ mode }: { mode: Mode }) {
           name: mode.category.name,
           slug: mode.category.slug,
           description: mode.category.description ?? '',
+          parentId: mode.category.parentId ?? NO_PARENT,
           isActive: mode.category.isActive,
         }
-      : { name: '', slug: '', description: '', isActive: true },
+      : {
+          name: '',
+          slug: '',
+          description: '',
+          parentId: NO_PARENT,
+          isActive: true,
+        },
   });
 
   const nameValue = watch('name');
@@ -105,6 +125,7 @@ export function CategoryForm({ mode }: { mode: Mode }) {
       fd.set('slug', values.slug);
       if (values.description) fd.set('description', values.description);
       if (imageKey) fd.set('imageKey', imageKey);
+      fd.set('parentId', values.parentId);
       fd.set('isActive', values.isActive ? 'true' : 'false');
 
       if (isEdit) {
@@ -135,6 +156,12 @@ export function CategoryForm({ mode }: { mode: Mode }) {
   const slugError = errors.slug?.message ?? serverFieldErrors.slug;
   const nameError = errors.name?.message ?? serverFieldErrors.name;
   const descError = errors.description?.message ?? serverFieldErrors.description;
+  const parentError = errors.parentId?.message ?? serverFieldErrors.parentId;
+  const hasChildren = isEdit && mode.hasChildren;
+  const parentDisabled = pending || hasChildren;
+  const parentHint = hasChildren
+    ? 'Esta categoría tiene subcategorías; muévelas a otra primero.'
+    : 'Opcional · déjala sin padre para una categoría principal.';
 
   return (
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
@@ -178,6 +205,27 @@ export function CategoryForm({ mode }: { mode: Mode }) {
             },
           })}
         />
+      </Field>
+
+      <Field
+        htmlFor="parentId"
+        label="Categoría padre"
+        error={parentError}
+        hint={parentHint}
+      >
+        <Select
+          id="parentId"
+          disabled={parentDisabled}
+          aria-invalid={!!parentError}
+          {...register('parentId')}
+        >
+          <option value={NO_PARENT}>Sin padre (categoría principal)</option>
+          {parents.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </Select>
       </Field>
 
       <Field

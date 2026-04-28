@@ -202,7 +202,9 @@ export function ImageUpload({
         id={inputId}
         type="file"
         accept={ACCEPTED_INPUT}
-        capture="environment"
+        // No `capture` attribute: on iOS Safari it would force the camera
+        // and hide the photo library. Without it, the OS shows the normal
+        // "Photo Library / Take Photo / Choose File" sheet.
         className="sr-only"
         onChange={(e) => {
           onPickFiles(e.target.files);
