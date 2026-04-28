@@ -9,6 +9,12 @@ import { formatMXN } from '@/lib/format';
 import { tryImagePublicUrl } from '@/lib/image-url';
 import { cn } from '@/lib/utils';
 import { prisma } from '@/server/lib/prisma';
+import {
+  LOW_STOCK_THRESHOLD,
+  lowStockProductsWhere,
+  noImageProductsWhere,
+  orphanCategoryProductsWhere,
+} from '@/server/lib/product-filters';
 
 import { ProductosFilters } from './productos-filters';
 
@@ -24,7 +30,6 @@ type TabValue = (typeof TAB_VALUES)[number];
 const isTabValue = (v: string | undefined): v is TabValue =>
   !!v && (TAB_VALUES as readonly string[]).includes(v);
 
-const LOW_STOCK_THRESHOLD = 5;
 const PAGE_SIZE = 100;
 
 type SearchParams = {
@@ -33,6 +38,7 @@ type SearchParams = {
   categoryId?: string;
   lowStock?: string;
   noImage?: string;
+  orphanCategory?: string;
 };
 
 export default async function ProductosPage({
@@ -45,6 +51,7 @@ export default async function ProductosPage({
   const categoryId = searchParams.categoryId?.trim() ?? '';
   const lowStock = searchParams.lowStock === '1';
   const noImage = searchParams.noImage === '1';
+  const orphanCategory = searchParams.orphanCategory === '1';
 
   const baseWhere = { deletedAt: null } as const;
   const tabWhere =
@@ -56,11 +63,14 @@ export default async function ProductosPage({
           ? { stock: 0 }
           : {};
 
+  // Reuse the shared fragments so the dashboard cards count exactly what the
+  // user sees here when they tap a card.
   const filterWhere = {
     ...(q ? { name: { contains: q, mode: 'insensitive' as const } } : {}),
     ...(categoryId ? { categoryId } : {}),
-    ...(lowStock ? { stock: { lte: LOW_STOCK_THRESHOLD } } : {}),
-    ...(noImage ? { images: { none: {} } } : {}),
+    ...(lowStock ? lowStockProductsWhere : {}),
+    ...(noImage ? noImageProductsWhere : {}),
+    ...(orphanCategory ? orphanCategoryProductsWhere : {}),
   };
 
   const where = { ...baseWhere, ...tabWhere, ...filterWhere };
