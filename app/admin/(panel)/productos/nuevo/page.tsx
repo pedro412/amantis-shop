@@ -55,7 +55,7 @@ export default async function NuevoProductoPage() {
         }
       />
       <div className="px-5 py-5">
-        <ProductForm categories={categories} />
+        <ProductForm mode={{ kind: 'create' }} categories={categories} />
       </div>
     </>
   );

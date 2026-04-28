@@ -31,6 +31,13 @@ export type CreateProductState =
   | { error: string; fieldErrors?: ProductFieldErrors }
   | undefined;
 
+export type UpdateProductState =
+  | { ok: true }
+  | { error: string; fieldErrors?: ProductFieldErrors }
+  | undefined;
+
+export type DeleteProductState = { ok: true } | { error: string };
+
 const DECIMAL_RE = /^\d+(\.\d{1,2})?$/;
 
 const decimalRequired = z
@@ -48,7 +55,7 @@ const decimalOptional = z
     message: 'Usa un número con máx. 2 decimales.',
   });
 
-const createSchema = z.object({
+const baseSchema = z.object({
   name: z.string().trim().min(1, 'Ingresa un nombre.').max(120, 'Máximo 120 caracteres.'),
   slug: z
     .string()
@@ -94,6 +101,10 @@ const createSchema = z.object({
     .transform((v) => v === 'true'),
 });
 
+const createSchema = baseSchema;
+const updateSchema = baseSchema.extend({ id: z.string().min(1) });
+const idSchema = z.string().min(1);
+
 function fieldErrorsFrom(err: z.ZodError): ProductFieldErrors {
   const out: ProductFieldErrors = {};
   const allowed: (keyof ProductFieldErrors)[] = [
@@ -124,6 +135,24 @@ async function requireAdmin(): Promise<{ ok: true } | { error: string }> {
     return { error: 'Sesión expirada. Vuelve a iniciar sesión.' };
   }
   return { ok: true };
+}
+
+function uniqueConflictFieldErrors(err: unknown): ProductFieldErrors | null {
+  if (
+    err instanceof Prisma.PrismaClientKnownRequestError &&
+    err.code === 'P2002'
+  ) {
+    const target = err.meta?.['target'];
+    if (Array.isArray(target)) {
+      if (target.includes('slug')) {
+        return { slug: 'Ya existe un producto con ese slug.' };
+      }
+      if (target.includes('sku')) {
+        return { sku: 'Ya existe un producto con ese SKU.' };
+      }
+    }
+  }
+  return null;
 }
 
 export async function createProductAction(
@@ -209,24 +238,156 @@ export async function createProductAction(
     revalidatePath(PRODUCTS_PATH);
     return { ok: true, id: created.id };
   } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-      const target = err.meta?.['target'];
-      if (Array.isArray(target)) {
-        if (target.includes('slug')) {
-          return {
-            error: 'Revisa los campos marcados.',
-            fieldErrors: { slug: 'Ya existe un producto con ese slug.' },
-          };
-        }
-        if (target.includes('sku')) {
-          return {
-            error: 'Revisa los campos marcados.',
-            fieldErrors: { sku: 'Ya existe un producto con ese SKU.' },
-          };
-        }
-      }
+    const fieldErrors = uniqueConflictFieldErrors(err);
+    if (fieldErrors) {
+      return { error: 'Revisa los campos marcados.', fieldErrors };
     }
     console.error('[createProductAction] failed', err);
     return { error: 'No pudimos crear el producto. Intenta de nuevo.' };
+  }
+}
+
+export async function updateProductAction(
+  _prev: UpdateProductState,
+  formData: FormData,
+): Promise<UpdateProductState> {
+  const guard = await requireAdmin();
+  if ('error' in guard) return { error: guard.error };
+
+  const imageKeys = formData
+    .getAll('imageKey')
+    .filter((v): v is string => typeof v === 'string' && v.length > 0);
+
+  const parsed = updateSchema.safeParse({
+    id: formData.get('id'),
+    name: formData.get('name'),
+    slug: formData.get('slug'),
+    shortDescription: formData.get('shortDescription') ?? undefined,
+    description: formData.get('description') ?? undefined,
+    price: formData.get('price'),
+    compareAtPrice: formData.get('compareAtPrice') ?? undefined,
+    stock: formData.get('stock') ?? '0',
+    sku: formData.get('sku') ?? undefined,
+    categoryId: formData.get('categoryId'),
+    imageKeys,
+    isActive: formData.get('isActive'),
+    isFeatured: formData.get('isFeatured'),
+  });
+
+  if (!parsed.success) {
+    return {
+      error: 'Revisa los campos marcados.',
+      fieldErrors: fieldErrorsFrom(parsed.error),
+    };
+  }
+
+  const data = parsed.data;
+
+  const category = await prisma.category.findUnique({
+    where: { id: data.categoryId },
+    select: { deletedAt: true },
+  });
+  if (!category || category.deletedAt) {
+    return {
+      error: 'Revisa los campos marcados.',
+      fieldErrors: { categoryId: 'La categoría no existe.' },
+    };
+  }
+
+  try {
+    // Replace all images in one transaction so the resulting set + sortOrder
+    // exactly matches what the gallery sent. R2 cleanup of removed files is
+    // already handled client-side when the user taps the X (best-effort);
+    // this simply syncs DB rows to the displayed order.
+    await prisma.$transaction([
+      prisma.productImage.deleteMany({ where: { productId: data.id } }),
+      prisma.product.update({
+        where: { id: data.id },
+        data: {
+          name: data.name,
+          slug: data.slug,
+          shortDescription: data.shortDescription,
+          description: data.description,
+          price: new Prisma.Decimal(data.price),
+          compareAtPrice: data.compareAtPrice
+            ? new Prisma.Decimal(data.compareAtPrice)
+            : null,
+          stock: data.stock,
+          sku: data.sku,
+          categoryId: data.categoryId,
+          isActive: data.isActive,
+          isFeatured: data.isFeatured,
+          ...(data.imageKeys.length > 0
+            ? {
+                images: {
+                  create: data.imageKeys.map((key, idx) => ({
+                    key,
+                    sortOrder: idx,
+                  })),
+                },
+              }
+            : {}),
+        },
+      }),
+    ]);
+    revalidatePath(PRODUCTS_PATH);
+    revalidatePath(`${PRODUCTS_PATH}/${data.id}`);
+    return { ok: true };
+  } catch (err) {
+    const fieldErrors = uniqueConflictFieldErrors(err);
+    if (fieldErrors) {
+      return { error: 'Revisa los campos marcados.', fieldErrors };
+    }
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+      return { error: 'No encontramos ese producto.' };
+    }
+    console.error('[updateProductAction] failed', err);
+    return { error: 'No pudimos guardar los cambios. Intenta de nuevo.' };
+  }
+}
+
+export async function softDeleteProductAction(
+  rawId: string,
+): Promise<DeleteProductState> {
+  const guard = await requireAdmin();
+  if ('error' in guard) return { error: guard.error };
+
+  const idParsed = idSchema.safeParse(rawId);
+  if (!idParsed.success) return { error: 'Identificador inválido.' };
+  const id = idParsed.data;
+
+  try {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      select: { slug: true, sku: true, deletedAt: true },
+    });
+    if (!product || product.deletedAt) {
+      return { error: 'No encontramos ese producto.' };
+    }
+
+    // Same defense as categorías: the column-level unique constraints on
+    // slug + sku are global, so a soft-deleted row would squat on those
+    // values forever. Tombstone both so the originals can be reused.
+    const ts = Date.now();
+    const slugSuffix = `__del_${ts}`;
+    const tombstonedSlug = `${product.slug.slice(0, 120 - slugSuffix.length)}${slugSuffix}`;
+    const tombstonedSku = product.sku
+      ? `${product.sku.slice(0, 60 - slugSuffix.length)}${slugSuffix}`
+      : null;
+
+    await prisma.product.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+        isActive: false,
+        slug: tombstonedSlug,
+        sku: tombstonedSku,
+      },
+    });
+    revalidatePath(PRODUCTS_PATH);
+    return { ok: true };
+  } catch (err) {
+    console.error('[softDeleteProductAction] failed', err);
+    return { error: 'No pudimos eliminar el producto. Intenta de nuevo.' };
   }
 }
