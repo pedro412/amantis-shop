@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import { Toaster } from 'sonner';
 
 import { AgeGate } from '@/components/public/age-gate';
 import { CartProvider } from '@/components/public/cart-context';
@@ -27,6 +28,20 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         <PublicBottomNav />
       </div>
       {!ageVerified && <AgeGate />}
+      <Toaster
+        position="top-center"
+        theme="light"
+        richColors={false}
+        closeButton={false}
+        toastOptions={{
+          className: 'font-sans text-[13px]',
+          style: {
+            background: 'hsl(var(--bg))',
+            color: 'hsl(var(--fg))',
+            border: '1px solid hsl(var(--border))',
+          },
+        }}
+      />
     </CartProvider>
   );
 }

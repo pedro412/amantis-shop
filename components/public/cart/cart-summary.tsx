@@ -7,11 +7,14 @@ import { cn } from '@/lib/utils';
 import { buildOrderMessage } from '@/lib/whatsapp-cart';
 import { buildWhatsappUrl } from '@/lib/whatsapp';
 
+import { useCustomerInfo } from './customer-info-context';
+
 export function CartSummary() {
   const { items } = useCart();
+  const { info } = useCustomerInfo();
 
   const subtotal = items.reduce((acc, i) => acc + i.unitPrice * i.qty, 0);
-  const message = buildOrderMessage(items);
+  const message = buildOrderMessage(items, info);
   const href = buildWhatsappUrl(message);
 
   return (

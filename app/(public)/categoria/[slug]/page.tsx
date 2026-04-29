@@ -5,6 +5,7 @@ import { FilterSheet } from '@/components/public/listing/filter-sheet';
 import { ListingHeader } from '@/components/public/listing/listing-header';
 import { ProductsGrid } from '@/components/public/listing/products-grid';
 import { SortSelect } from '@/components/public/listing/sort-select';
+import { JsonLd, breadcrumbSchema } from '@/lib/structured-data';
 import {
   type ListingFilters,
   type SortOrder,
@@ -31,12 +32,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Lightweight pre-fetch for title — we just need the name. Falls back to a
   // generic title if the slug is invalid; the page itself will 404.
   const listing = await getCategoryListing(params.slug, EMPTY_FILTERS, 'nuevo');
-  const title = listing ? `${listing.category.name} · Ámantis` : 'Categoría · Ámantis';
+  if (!listing) {
+    return {
+      title: 'Categoría · Ámantis',
+      description: 'Catálogo Ámantis · bienestar e intimidad para mayores de 18 años.',
+    };
+  }
+  const title = `${listing.category.name} · Ámantis`;
+  const description = `Productos de ${listing.category.name} disponibles en Ámantis. Pedidos por WhatsApp.`;
+  const canonical = `/categoria/${params.slug}`;
   return {
     title,
-    description: listing
-      ? `Productos de ${listing.category.name} disponibles en Ámantis.`
-      : 'Catálogo Ámantis · bienestar e intimidad para mayores de 18 años.',
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: 'website',
+      title,
+      description,
+      url: canonical,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 
@@ -61,8 +80,22 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
   const isFiltering =
     !!filters.priceRange || filters.inStock || filters.brandIds.length > 0;
 
+  const breadcrumbs = [
+    { name: 'Inicio', path: '/' },
+    ...(listing.category.parentName && listing.category.parentSlug
+      ? [
+          {
+            name: listing.category.parentName,
+            path: `/categoria/${listing.category.parentSlug}`,
+          },
+        ]
+      : []),
+    { name: listing.category.name, path: `/categoria/${listing.category.slug}` },
+  ];
+
   return (
     <>
+      <JsonLd data={breadcrumbSchema(breadcrumbs)} />
       <ListingHeader
         name={listing.category.name}
         parentName={listing.category.parentName}

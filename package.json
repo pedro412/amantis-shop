@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "analyze": "ANALYZE=1 next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -15,6 +16,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:studio": "dotenv -e .env.local -- prisma studio",
     "db:seed": "dotenv -e .env.local -- tsx prisma/seed.ts",
+    "backup": "tsx scripts/backup-db.ts",
+    "backup:dry": "tsx scripts/backup-db.ts --dry-run",
     "postinstall": "prisma generate"
   },
   "prisma": {
@@ -53,10 +56,12 @@
     "react-hook-form": "^7.74.0",
     "resend": "^6.12.2",
     "sharp": "^0.34.5",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^3.5.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.2.4",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

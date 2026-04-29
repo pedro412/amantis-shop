@@ -1,6 +1,7 @@
 'use client';
 
 import { ImageIcon, Minus, Plus, X } from 'lucide-react';
+import Image from 'next/image';
 
 import { useCart, type CartItem } from '@/components/public/cart-context';
 import { formatMXN } from '@/lib/format';
@@ -26,13 +27,13 @@ export function CartItemRow({ item }: Props) {
     <article className="flex items-start gap-3 px-4 py-4">
       <div className="relative h-[76px] w-[76px] shrink-0 overflow-hidden rounded-md bg-surface-alt">
         {src ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={src}
             alt=""
-            className="h-full w-full object-cover"
-            loading="lazy"
-            decoding="async"
+            fill
+            sizes="76px"
+            className="object-cover"
+            unoptimized
           />
         ) : (
           <div

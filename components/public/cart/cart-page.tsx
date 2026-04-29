@@ -5,9 +5,11 @@ import Link from 'next/link';
 
 import { useCart } from '@/components/public/cart-context';
 
+import { CartCustomerFields } from './cart-customer-fields';
 import { CartEmptyState } from './cart-empty-state';
 import { CartItemRow } from './cart-item-row';
 import { CartSummary } from './cart-summary';
+import { CustomerInfoProvider } from './customer-info-context';
 
 export function CartPage() {
   const { items, count, hydrated } = useCart();
@@ -16,7 +18,7 @@ export function CartPage() {
   if (items.length === 0) return <CartEmptyState />;
 
   return (
-    <>
+    <CustomerInfoProvider>
       <Header itemCount={count} />
 
       <ul className="flex flex-col divide-y divide-border/60">
@@ -27,11 +29,13 @@ export function CartPage() {
         ))}
       </ul>
 
+      <CartCustomerFields />
+
       {/* Reserve space for the fixed summary panel so the last item isn't hidden. */}
       <div className="h-56" aria-hidden />
 
       <CartSummary />
-    </>
+    </CustomerInfoProvider>
   );
 }
 

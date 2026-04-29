@@ -17,9 +17,34 @@ const cormorant = Cormorant_Garamond({
   display: 'swap',
 });
 
+import { SITE_URL } from '@/lib/site-url';
+
+const SITE_NAME = 'Ámantis';
+const SITE_DESCRIPTION =
+  'Catálogo digital — bienestar e intimidad para mayores de 18 años.';
+
 export const metadata: Metadata = {
-  title: 'Ámantis',
-  description: 'Catálogo digital — bienestar e intimidad para mayores de 18 años.',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_NAME,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  formatDetection: { telephone: false },
+  openGraph: {
+    type: 'website',
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    locale: 'es_MX',
+    url: '/',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export const viewport: Viewport = {
