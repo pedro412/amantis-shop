@@ -1,0 +1,77 @@
+'use client';
+
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
+
+import { useCart } from '@/components/public/cart-context';
+
+import { CartEmptyState } from './cart-empty-state';
+import { CartItemRow } from './cart-item-row';
+import { CartSummary } from './cart-summary';
+
+export function CartPage() {
+  const { items, count, hydrated } = useCart();
+
+  if (!hydrated) return <CartLoading />;
+  if (items.length === 0) return <CartEmptyState />;
+
+  return (
+    <>
+      <Header itemCount={count} />
+
+      <ul className="flex flex-col divide-y divide-border/60">
+        {items.map((item) => (
+          <li key={item.lineId}>
+            <CartItemRow item={item} />
+          </li>
+        ))}
+      </ul>
+
+      {/* Reserve space for the fixed summary panel so the last item isn't hidden. */}
+      <div className="h-56" aria-hidden />
+
+      <CartSummary />
+    </>
+  );
+}
+
+function Header({ itemCount }: { itemCount: number }) {
+  return (
+    <div className="flex items-center gap-3 px-4 pt-2 pb-3">
+      <Link
+        href="/"
+        aria-label="Volver al inicio"
+        className="-ml-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-fg-muted transition-colors hover:bg-surface-alt hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+      >
+        <ChevronLeft aria-hidden className="h-5 w-5" strokeWidth={1.75} />
+      </Link>
+      <h1 className="flex-1 truncate font-serif text-[20px] font-medium leading-tight text-fg">
+        Tu pedido
+      </h1>
+      <p className="font-sans text-[12px] tabular-nums text-fg-muted">
+        {itemCount} {itemCount === 1 ? 'artículo' : 'artículos'}
+      </p>
+    </div>
+  );
+}
+
+function CartLoading() {
+  return (
+    <div className="px-4 pt-3" aria-hidden>
+      <div className="h-6 w-32 rounded bg-surface-alt" />
+      <ul className="mt-4 flex flex-col gap-3">
+        {Array.from({ length: 2 }).map((_, i) => (
+          <li key={i} className="flex items-start gap-3">
+            <div className="h-[76px] w-[76px] shrink-0 rounded-md bg-surface-alt" />
+            <div className="flex-1 space-y-2">
+              <div className="h-3.5 w-3/4 rounded bg-surface-alt" />
+              <div className="h-3 w-1/3 rounded bg-surface-alt" />
+              <div className="h-9 w-32 rounded-full bg-surface-alt" />
+            </div>
+          </li>
+        ))}
+      </ul>
+      <span className="sr-only">Cargando carrito…</span>
+    </div>
+  );
+}
