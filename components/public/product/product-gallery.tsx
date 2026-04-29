@@ -57,11 +57,15 @@ export function ProductGallery({ imageKeys, alt }: Props) {
     <div className="relative">
       <ul
         ref={scrollerRef}
+        // touch-action: pan-x is applied here AND inline on every descendant
+        // because iOS Safari uses the touch-action of the element under the
+        // pointer (the <img>), and touch-action is not inherited. Defense in
+        // depth: ul + li + img all opt out of vertical pan capture.
+        // overflow-y-hidden makes vertical overflow explicit so iOS doesn't
+        // assume the container can also scroll vertically.
+        style={{ touchAction: 'pan-x' }}
         className={cn(
-          'flex aspect-[4/5] w-full snap-x snap-mandatory overflow-x-auto',
-          // touch-pan-x lets vertical pans bubble up to the page so iOS Safari
-          // doesn't trap the gesture inside this horizontal scroller.
-          'touch-pan-x',
+          'flex aspect-[4/5] w-full snap-x snap-proximity overflow-x-auto overflow-y-hidden',
           'bg-surface-alt',
           '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         )}
@@ -72,6 +76,7 @@ export function ProductGallery({ imageKeys, alt }: Props) {
             <li
               key={key}
               data-slide={idx}
+              style={{ touchAction: 'pan-x' }}
               className="relative h-full w-full shrink-0 snap-center"
             >
               {src ? (
@@ -81,6 +86,7 @@ export function ProductGallery({ imageKeys, alt }: Props) {
                   fill
                   sizes="100vw"
                   priority={idx === 0}
+                  style={{ touchAction: 'pan-x' }}
                   className="object-cover"
                   unoptimized
                 />
