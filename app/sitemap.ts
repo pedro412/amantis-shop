@@ -23,14 +23,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 1,
     },
-    ...['/acerca-de', '/como-comprar', '/zona-de-cobertura', '/faq', '/contacto'].map(
-      (path) => ({
-        url: `${SITE_URL}${path}`,
-        lastModified: now,
-        changeFrequency: 'monthly' as const,
-        priority: 0.5,
-      }),
-    ),
+    ...[
+      '/acerca-de',
+      '/como-comprar',
+      '/zona-de-cobertura',
+      '/faq',
+      '/contacto',
+      '/aviso-de-privacidad',
+      '/terminos',
+    ].map((path) => ({
+      url: `${SITE_URL}${path}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    })),
   ];
 
   const categoryEntries: MetadataRoute.Sitemap = categories.map((c) => ({
