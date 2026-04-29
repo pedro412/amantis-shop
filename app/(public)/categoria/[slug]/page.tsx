@@ -5,6 +5,7 @@ import { FilterSheet } from '@/components/public/listing/filter-sheet';
 import { ListingHeader } from '@/components/public/listing/listing-header';
 import { ProductsGrid } from '@/components/public/listing/products-grid';
 import { SortSelect } from '@/components/public/listing/sort-select';
+import { JsonLd, breadcrumbSchema } from '@/lib/structured-data';
 import {
   type ListingFilters,
   type SortOrder,
@@ -79,8 +80,22 @@ export default async function CategoriaPage({ params, searchParams }: PageProps)
   const isFiltering =
     !!filters.priceRange || filters.inStock || filters.brandIds.length > 0;
 
+  const breadcrumbs = [
+    { name: 'Inicio', path: '/' },
+    ...(listing.category.parentName && listing.category.parentSlug
+      ? [
+          {
+            name: listing.category.parentName,
+            path: `/categoria/${listing.category.parentSlug}`,
+          },
+        ]
+      : []),
+    { name: listing.category.name, path: `/categoria/${listing.category.slug}` },
+  ];
+
   return (
     <>
+      <JsonLd data={breadcrumbSchema(breadcrumbs)} />
       <ListingHeader
         name={listing.category.name}
         parentName={listing.category.parentName}

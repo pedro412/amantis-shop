@@ -28,6 +28,7 @@ export type ListingCategoryHeader = {
   name: string;
   slug: string;
   parentName: string | null;
+  parentSlug: string | null;
 };
 
 export type ListingPage = {
@@ -83,7 +84,7 @@ async function resolveCategoryScope(slug: string): Promise<{
       slug: true,
       isActive: true,
       deletedAt: true,
-      parent: { select: { name: true } },
+      parent: { select: { name: true, slug: true } },
       children: {
         where: { isActive: true, deletedAt: null },
         select: { id: true },
@@ -100,6 +101,7 @@ async function resolveCategoryScope(slug: string): Promise<{
       name: category.name,
       slug: category.slug,
       parentName: category.parent?.name ?? null,
+      parentSlug: category.parent?.slug ?? null,
     },
     categoryIds,
   };

@@ -10,6 +10,11 @@ import { ProductSelectionProvider } from '@/components/public/product/product-se
 import { ProductShareButton } from '@/components/public/product/product-share-button';
 import { RelatedProducts } from '@/components/public/product/related-products';
 import { tryImagePublicUrl } from '@/lib/image-url';
+import {
+  JsonLd,
+  breadcrumbSchema,
+  productSchema,
+} from '@/lib/structured-data';
 import { getProductBySlug, getRelatedProducts } from '@/server/queries/product';
 
 export const revalidate = 60;
@@ -58,8 +63,35 @@ export default async function ProductoPage({ params }: PageProps) {
 
   const related = await getRelatedProducts(product.id, product.category.id);
 
+  const inStock =
+    product.totalStock > 0 ||
+    product.variants.some((v) => v.stock > 0);
+
+  const breadcrumbs = [
+    { name: 'Inicio', path: '/' },
+    {
+      name: product.category.name,
+      path: `/categoria/${product.category.slug}`,
+    },
+    { name: product.name, path: `/producto/${product.slug}` },
+  ];
+
   return (
     <ProductSelectionProvider product={product}>
+      <JsonLd
+        data={[
+          productSchema({
+            slug: product.slug,
+            name: product.name,
+            description: product.shortDescription ?? product.description,
+            price: product.price,
+            imageKeys: product.imageKeys,
+            category: { name: product.category.name },
+            inStock,
+          }),
+          breadcrumbSchema(breadcrumbs),
+        ]}
+      />
       <div className="relative">
         <ProductBackButton />
         <ProductShareButton name={product.name} />

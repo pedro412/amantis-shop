@@ -5,6 +5,11 @@ import { HomeHero } from '@/components/public/home/hero';
 import { ProductsRow } from '@/components/public/home/products-row';
 import { TrustStrip } from '@/components/public/home/trust-strip';
 import {
+  JsonLd,
+  organizationSchema,
+  websiteSchema,
+} from '@/lib/structured-data';
+import {
   getFeaturedProducts,
   getHomeCategories,
   getNovedades,
@@ -44,6 +49,7 @@ export default async function Home() {
 
   return (
     <>
+      <JsonLd data={[organizationSchema(), websiteSchema()]} />
       <HomeHero />
       <CategoriesGrid categories={categories} />
       <ProductsRow title="Destacados" products={featured} />

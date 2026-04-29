@@ -17,16 +17,14 @@ const cormorant = Cormorant_Garamond({
   display: 'swap',
 });
 
-const siteUrl =
-  process.env['NEXT_PUBLIC_SITE_URL'] ??
-  (process.env['VERCEL_URL'] ? `https://${process.env['VERCEL_URL']}` : 'http://localhost:3000');
+import { SITE_URL } from '@/lib/site-url';
 
 const SITE_NAME = 'Ámantis';
 const SITE_DESCRIPTION =
   'Catálogo digital — bienestar e intimidad para mayores de 18 años.';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: SITE_NAME,
     template: `%s · ${SITE_NAME}`,
