@@ -59,6 +59,9 @@ export function ProductGallery({ imageKeys, alt }: Props) {
         ref={scrollerRef}
         className={cn(
           'flex aspect-[4/5] w-full snap-x snap-mandatory overflow-x-auto',
+          // touch-pan-x lets vertical pans bubble up to the page so iOS Safari
+          // doesn't trap the gesture inside this horizontal scroller.
+          'touch-pan-x',
           'bg-surface-alt',
           '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         )}
