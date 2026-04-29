@@ -1,10 +1,7 @@
 import type { MetadataRoute } from 'next';
 
+import { SITE_URL } from '@/lib/site-url';
 import { getSitemapCategories, getSitemapProducts } from '@/server/queries/sitemap';
-
-const SITE_URL =
-  process.env['NEXT_PUBLIC_SITE_URL'] ??
-  (process.env['VERCEL_URL'] ? `https://${process.env['VERCEL_URL']}` : 'http://localhost:3000');
 
 export const revalidate = 3600;
 
