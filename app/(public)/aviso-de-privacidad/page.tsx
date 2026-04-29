@@ -6,6 +6,8 @@ import {
   StaticSection,
 } from '@/components/public/static-page-shell';
 
+export const dynamic = 'force-static';
+
 const TITLE = 'Aviso de privacidad';
 const DESCRIPTION =
   'Cómo Ámantis recolecta, usa y protege tus datos personales conforme a la LFPDPPP en México.';

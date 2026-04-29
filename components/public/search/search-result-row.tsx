@@ -1,4 +1,5 @@
 import { ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { formatMXN } from '@/lib/format';
@@ -31,13 +32,13 @@ export function SearchResultRow({ hit, query, onOpen }: Props) {
     >
       <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-surface-alt">
         {src ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={src}
             alt=""
-            className="h-full w-full object-cover"
-            loading="lazy"
-            decoding="async"
+            fill
+            sizes="56px"
+            className="object-cover"
+            unoptimized
           />
         ) : (
           <div

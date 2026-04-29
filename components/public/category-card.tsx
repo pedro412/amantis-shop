@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 
 import { tryImagePublicUrl } from '@/lib/image-url';
@@ -23,14 +24,14 @@ export function CategoryCard({ slug, name, imageKey, productCount }: Props) {
       )}
     >
       {src && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={src}
           alt=""
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-slow ease-smooth group-hover:scale-[1.03]"
-          loading="lazy"
-          decoding="async"
+          fill
+          sizes="(max-width: 480px) 50vw, 240px"
+          className="object-cover transition-transform duration-slow ease-smooth group-hover:scale-[1.03]"
+          unoptimized
         />
       )}
       <div

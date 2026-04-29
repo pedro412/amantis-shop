@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 
 import { StaticPageShell } from '@/components/public/static-page-shell';
 
+export const dynamic = 'force-static';
+
 const TITLE = 'Preguntas frecuentes';
 const DESCRIPTION =
   'Resolvemos las dudas más comunes sobre envío, pago, devoluciones, discreción y edad mínima.';

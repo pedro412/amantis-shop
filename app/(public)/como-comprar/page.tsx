@@ -8,6 +8,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { buildWhatsappUrl } from '@/lib/whatsapp';
 
+export const dynamic = 'force-static';
+
 const TITLE = 'Cómo comprar';
 const DESCRIPTION =
   'Cinco pasos para hacer tu pedido en Ámantis: desde explorar el catálogo hasta recibir tu paquete discreto.';

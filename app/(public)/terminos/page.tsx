@@ -6,6 +6,8 @@ import {
   StaticSection,
 } from '@/components/public/static-page-shell';
 
+export const dynamic = 'force-static';
+
 const TITLE = 'Términos y condiciones';
 const DESCRIPTION =
   'Reglas de uso del sitio Ámantis: pedidos por WhatsApp, pagos, envíos, devoluciones por higiene y edad mínima.';

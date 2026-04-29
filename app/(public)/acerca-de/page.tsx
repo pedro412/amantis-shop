@@ -5,6 +5,8 @@ import {
   StaticSection,
 } from '@/components/public/static-page-shell';
 
+export const dynamic = 'force-static';
+
 const TITLE = 'Acerca de';
 const DESCRIPTION =
   'Ámantis es un catálogo digital pensado para que elegir productos íntimos sea cómodo, discreto y sin presión.';

@@ -1,6 +1,7 @@
 'use client';
 
 import { ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 import { tryImagePublicUrl } from '@/lib/image-url';
@@ -71,13 +72,14 @@ export function ProductGallery({ imageKeys, alt }: Props) {
               className="relative h-full w-full shrink-0 snap-center"
             >
               {src ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={src}
                   alt={idx === 0 ? alt : ''}
-                  className="h-full w-full object-cover"
-                  loading={idx === 0 ? 'eager' : 'lazy'}
-                  decoding="async"
+                  fill
+                  sizes="100vw"
+                  priority={idx === 0}
+                  className="object-cover"
+                  unoptimized
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-primary-soft text-primary/40">

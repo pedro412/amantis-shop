@@ -4,6 +4,8 @@ import type { Metadata } from 'next';
 import { StaticPageShell } from '@/components/public/static-page-shell';
 import { buildWhatsappUrl, getWhatsappDisplayNumber } from '@/lib/whatsapp';
 
+export const dynamic = 'force-static';
+
 // Lucide dropped brand glyphs in v1.x; inline these so we don't pull a second
 // icon package just for two channels.
 function InstagramGlyph(props: React.SVGProps<SVGSVGElement>) {
