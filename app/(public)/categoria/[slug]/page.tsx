@@ -31,12 +31,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Lightweight pre-fetch for title — we just need the name. Falls back to a
   // generic title if the slug is invalid; the page itself will 404.
   const listing = await getCategoryListing(params.slug, EMPTY_FILTERS, 'nuevo');
-  const title = listing ? `${listing.category.name} · Ámantis` : 'Categoría · Ámantis';
+  if (!listing) {
+    return {
+      title: 'Categoría · Ámantis',
+      description: 'Catálogo Ámantis · bienestar e intimidad para mayores de 18 años.',
+    };
+  }
+  const title = `${listing.category.name} · Ámantis`;
+  const description = `Productos de ${listing.category.name} disponibles en Ámantis. Pedidos por WhatsApp.`;
+  const canonical = `/categoria/${params.slug}`;
   return {
     title,
-    description: listing
-      ? `Productos de ${listing.category.name} disponibles en Ámantis.`
-      : 'Catálogo Ámantis · bienestar e intimidad para mayores de 18 años.',
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: 'website',
+      title,
+      description,
+      url: canonical,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   };
 }
 

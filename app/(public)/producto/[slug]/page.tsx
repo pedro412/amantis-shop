@@ -28,17 +28,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     product.shortDescription ??
     `${product.name} · ${product.category.name} en Ámantis.`;
   const title = `${product.name} · Ámantis`;
+  const canonical = `/producto/${product.slug}`;
   const firstImageKey = product.imageKeys[0];
   const ogImage = firstImageKey ? tryImagePublicUrl(firstImageKey, 'medium') : null;
   return {
     title,
     description,
+    alternates: { canonical },
     openGraph: {
       type: 'website',
       title,
       description,
       siteName: 'Ámantis',
-      url: `/producto/${product.slug}`,
+      url: canonical,
       ...(ogImage && { images: [{ url: ogImage, alt: product.name }] }),
     },
     twitter: {
