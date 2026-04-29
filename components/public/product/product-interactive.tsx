@@ -1,48 +1,22 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
 
 import { formatMXN } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import type { ProductDetail, ProductDetailVariant } from '@/server/queries/product';
 
-type Props = {
-  product: ProductDetail;
-};
+import { useProductSelection } from './product-selection-context';
 
-export function ProductInteractive({ product }: Props) {
-  const { variants, price: basePrice, compareAtPrice, totalStock } = product;
+export function ProductInteractive() {
+  const { product, selectedVariantId, setSelectedVariantId, displayPrice, available } =
+    useProductSelection();
+
+  const { variants, compareAtPrice } = product;
   const hasVariants = variants.length > 0;
 
-  // Pre-select the first available variant so the user lands on a buy-ready
-  // state. Deterministic so SSR ↔ client match.
-  const initialVariantId = useMemo<string | null>(() => {
-    if (!hasVariants) return null;
-    const firstAvailable = variants.find((v) => v.stock > 0);
-    return firstAvailable?.id ?? null;
-  }, [hasVariants, variants]);
-
-  const [selectedId, setSelectedId] = useState<string | null>(initialVariantId);
-
-  const selected: ProductDetailVariant | null = useMemo(() => {
-    if (!hasVariants || !selectedId) return null;
-    return variants.find((v) => v.id === selectedId) ?? null;
-  }, [hasVariants, selectedId, variants]);
-
-  const displayPrice =
-    selected?.priceOverride && selected.priceOverride.length > 0
-      ? selected.priceOverride
-      : basePrice;
   const displayPriceNum = Number(displayPrice);
   const compareNum = compareAtPrice ? Number(compareAtPrice) : null;
   const onSale = compareNum !== null && compareNum > displayPriceNum;
-
-  const available = hasVariants
-    ? selected
-      ? selected.stock > 0
-      : variants.some((v) => v.stock > 0)
-    : totalStock > 0;
 
   return (
     <div className="px-5 pt-5">
@@ -91,14 +65,14 @@ export function ProductInteractive({ product }: Props) {
           </p>
           <ul className="mt-2 flex flex-wrap gap-1.5">
             {variants.map((v) => {
-              const isSelected = v.id === selectedId;
+              const isSelected = v.id === selectedVariantId;
               const isOut = v.stock <= 0;
               return (
                 <li key={v.id}>
                   <button
                     type="button"
                     disabled={isOut}
-                    onClick={() => setSelectedId(v.id)}
+                    onClick={() => setSelectedVariantId(v.id)}
                     aria-pressed={isSelected}
                     className={cn(
                       'inline-flex h-11 items-center rounded-full border px-4',

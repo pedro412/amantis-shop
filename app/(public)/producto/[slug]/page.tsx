@@ -2,9 +2,11 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { ProductBackButton } from '@/components/public/product/product-back-button';
+import { ProductCTA } from '@/components/public/product/product-cta';
 import { ProductDescription } from '@/components/public/product/product-description';
 import { ProductGallery } from '@/components/public/product/product-gallery';
 import { ProductInteractive } from '@/components/public/product/product-interactive';
+import { ProductSelectionProvider } from '@/components/public/product/product-selection-context';
 import { RelatedProducts } from '@/components/public/product/related-products';
 import { getProductBySlug, getRelatedProducts } from '@/server/queries/product';
 
@@ -36,13 +38,13 @@ export default async function ProductoPage({ params }: PageProps) {
   const related = await getRelatedProducts(product.id, product.category.id);
 
   return (
-    <>
+    <ProductSelectionProvider product={product}>
       <div className="relative">
         <ProductBackButton />
         <ProductGallery imageKeys={product.imageKeys} alt={product.name} />
       </div>
 
-      <ProductInteractive product={product} />
+      <ProductInteractive />
 
       {product.description && product.description.trim().length > 0 && (
         <ProductDescription text={product.description} />
@@ -50,7 +52,10 @@ export default async function ProductoPage({ params }: PageProps) {
 
       <RelatedProducts products={related} />
 
-      <div className="h-8" aria-hidden />
-    </>
+      {/* Reserve space for the fixed CTA bar (h-[72px] = 12px padding * 2 + 48px button). */}
+      <div className="h-24" aria-hidden />
+
+      <ProductCTA />
+    </ProductSelectionProvider>
   );
 }
