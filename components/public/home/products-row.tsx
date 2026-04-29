@@ -29,8 +29,14 @@ export function ProductsRow({ title, products, seeAllHref }: Props) {
         )}
       </div>
       <ul
-        className="mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
+        {/* Spacer pseudo-items guarantee 16px breathing room at both ends.
+            Padding on a horizontal scroll container is unreliable across
+            browsers (Safari ignores padding-right; some Android Chromes
+            collapse padding-left under flex children). Spacer <li>s sidestep
+            the quirk and also give scroll-snap a clean origin to align to. */}
+        <li aria-hidden className="w-4 shrink-0" />
         {products.map((p) => (
           <li key={p.id} className="snap-start">
             <ProductCard
@@ -42,6 +48,7 @@ export function ProductsRow({ title, products, seeAllHref }: Props) {
             />
           </li>
         ))}
+        <li aria-hidden className="w-4 shrink-0" />
       </ul>
     </section>
   );
