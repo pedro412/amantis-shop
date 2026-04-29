@@ -7,6 +7,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { buildWhatsappUrl } from '@/lib/whatsapp';
 
+export const dynamic = 'force-static';
+
 const TITLE = 'Zona de cobertura';
 const DESCRIPTION =
   'Envíos en Ciudad del Carmen y resto del país por acuerdo. Tiempos y costos se confirman por WhatsApp.';
