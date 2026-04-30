@@ -24,7 +24,7 @@ export function buildOrderMessage(
   const zone = customer?.zone?.trim();
 
   const out: string[] = [
-    'Hola Shirley, me gustaría hacer este pedido:',
+    'Hola Ámantis, me gustaría hacer este pedido:',
     '',
     ...lines,
     '',

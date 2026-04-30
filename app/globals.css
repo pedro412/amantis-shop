@@ -9,6 +9,10 @@
  */
 @layer base {
   :root {
+    /* Belt-and-suspenders with viewport.colorScheme: keep Android Chrome from
+       applying its automatic dark-mode adaptation to our light tokens. */
+    color-scheme: light only;
+
     /* Brand crimson */
     --primary: 351 79% 27%;
     --primary-foreground: 33 38% 96%;

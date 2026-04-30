@@ -49,6 +49,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: '#FAF6F1',
+  // Force light only — prevents Android Chrome from applying auto dark mode
+  // when the user has dark mode enabled at the OS level.
+  colorScheme: 'light',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
