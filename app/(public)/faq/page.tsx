@@ -27,7 +27,7 @@ const FAQS = [
   },
   {
     q: '¿Qué formas de pago aceptan?',
-    a: 'Aceptamos transferencia bancaria. Te compartimos los datos por WhatsApp una vez confirmado el pedido y el costo final con envío.',
+    a: 'Tres opciones: efectivo (solo entrega local en Ciudad del Carmen), transferencia bancaria por SPEI, o tarjeta de crédito/débito vía link de pago que te enviamos por WhatsApp. Con tarjeta de crédito participante puedes pagar a 3 meses sin intereses en compras desde $1,500.',
   },
   {
     q: '¿Cuánto tarda mi envío?',

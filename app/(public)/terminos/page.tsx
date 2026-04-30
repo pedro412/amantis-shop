@@ -73,16 +73,34 @@ export default function TerminosPage() {
       </StaticSection>
 
       <StaticSection title="5. Pagos">
+        <p>Aceptamos los siguientes métodos de pago, coordinados directamente por WhatsApp:</p>
+        <ul className="ml-5 list-disc space-y-1">
+          <li>
+            <strong>Efectivo</strong> — exclusivamente para entregas locales en
+            Ciudad del Carmen (al recoger en local o al recibir el envío con
+            mandadito).
+          </li>
+          <li>
+            <strong>Transferencia bancaria (SPEI)</strong> — disponible para todos
+            los pedidos. Los datos de la cuenta se comparten por WhatsApp tras
+            confirmar el pedido.
+          </li>
+          <li>
+            <strong>Tarjeta de crédito o débito</strong> — vía link de pago
+            generado por Ámantis y enviado al cliente por WhatsApp. Con tarjetas
+            de crédito participantes aplica la opción de 3 meses sin intereses en
+            compras desde $1,500 MXN.
+          </li>
+        </ul>
         <p>
-          Aceptamos transferencia bancaria (SPEI). Los datos de la cuenta se
-          comparten directamente por WhatsApp tras confirmar tu pedido. No
-          aceptamos pagos en este Sitio ni a través de pasarelas externas.
+          El Sitio no procesa pagos directamente; toda transacción se coordina y
+          ejecuta a través del canal de WhatsApp de Ámantis.
         </p>
         <p>
-          Es responsabilidad del cliente verificar que los datos bancarios
-          sean los oficiales que Ámantis te haya compartido. No nos hacemos
-          responsables por transferencias enviadas a cuentas distintas a las
-          confirmadas en la conversación.
+          Es responsabilidad del cliente verificar que los datos bancarios o el
+          link de pago sean los oficiales que Ámantis te haya compartido. No nos
+          hacemos responsables por pagos enviados a cuentas o links distintos a
+          los confirmados en la conversación.
         </p>
       </StaticSection>
 
