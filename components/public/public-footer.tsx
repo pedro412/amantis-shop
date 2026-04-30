@@ -14,10 +14,10 @@ export function PublicFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-border/60 bg-surface-alt">
+    <footer className="bg-primary text-fg-inverse">
       <div className="mx-auto max-w-md px-5 py-8">
-        <p className="font-serif text-h3 font-medium text-fg">ÁMANTIS</p>
-        <p className="mt-1.5 font-sans text-[12px] leading-relaxed text-fg-muted">
+        <p className="font-serif text-h3 font-medium">ÁMANTIS</p>
+        <p className="mt-1.5 font-sans text-[12px] leading-relaxed text-fg-inverse/85">
           Bienestar e intimidad para mayores de 18 años.
         </p>
 
@@ -26,7 +26,7 @@ export function PublicFooter() {
             <li key={l.href}>
               <Link
                 href={l.href}
-                className="font-sans text-[12px] text-fg-muted transition-colors hover:text-fg"
+                className="font-sans text-[12px] text-fg-inverse/85 transition-colors hover:text-fg-inverse"
               >
                 {l.label}
               </Link>
@@ -34,12 +34,12 @@ export function PublicFooter() {
           ))}
         </ul>
 
-        <div className="mt-6 border-t border-border pt-4">
-          <p className="font-sans text-[11px] leading-relaxed text-fg-subtle">
+        <div className="mt-6 border-t border-fg-inverse/20 pt-4">
+          <p className="font-sans text-[11px] leading-relaxed text-fg-inverse/70">
             Sitio para mayores de 18 años. Productos para uso íntimo y bienestar
             adulto. Pedidos por WhatsApp · pago por transferencia bancaria.
           </p>
-          <p className="mt-3 font-sans text-[11px] text-fg-subtle">
+          <p className="mt-3 font-sans text-[11px] text-fg-inverse/70">
             © {year} Ámantis · Todos los derechos reservados.
           </p>
         </div>

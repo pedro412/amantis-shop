@@ -78,11 +78,13 @@ export default function ComoComprarPage() {
         ))}
       </ol>
 
-      <StaticSection title="Pago">
-        <p>
-          Aceptamos transferencia bancaria. Te compartimos los datos por
-          WhatsApp una vez confirmado tu pedido y el costo final con envío.
-        </p>
+      <StaticSection title="Métodos de pago">
+        <p>Aceptamos tres formas de pago. Coordinamos cuál usas durante la conversación de WhatsApp:</p>
+        <ul className="ml-5 list-disc space-y-1">
+          <li><strong>Efectivo</strong> — solo para entrega local en Ciudad del Carmen (al recoger en local o al recibir el mandadito).</li>
+          <li><strong>Transferencia bancaria (SPEI)</strong> — para todos los pedidos. Te pasamos los datos por WhatsApp una vez confirmado el pedido.</li>
+          <li><strong>Tarjeta de crédito o débito</strong> — vía link de pago que te enviamos por WhatsApp. Con tarjeta de crédito participante puedes pagar a 3 meses sin intereses en compras desde $1,500.</li>
+        </ul>
       </StaticSection>
 
       <StaticSection title="Tiempos de envío">

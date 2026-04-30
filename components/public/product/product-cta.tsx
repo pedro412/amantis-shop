@@ -69,7 +69,7 @@ export function ProductCTA() {
         'bottom-[calc(3.5rem+env(safe-area-inset-bottom))]',
       )}
     >
-      <div className="flex items-center gap-2 px-3 py-3">
+      <div className="flex items-center gap-2 px-3 py-2">
         <button
           type="button"
           onClick={onAddToCart}
@@ -78,7 +78,7 @@ export function ProductCTA() {
             justAdded ? 'Agregado al carrito' : 'Agregar al carrito'
           }
           className={cn(
-            'inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-[1.5px]',
+            'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-[1.5px]',
             'transition-colors duration-base ease-smooth',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
             justAdded
@@ -96,7 +96,7 @@ export function ProductCTA() {
 
         <Button
           asChild
-          size="lg"
+          size="md"
           variant="primary"
           className="flex-1"
         >

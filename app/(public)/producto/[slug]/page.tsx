@@ -106,8 +106,8 @@ export default async function ProductoPage({ params }: PageProps) {
 
       <RelatedProducts products={related} />
 
-      {/* Reserve space for the fixed CTA bar (h-[72px] = 12px padding * 2 + 48px button). */}
-      <div className="h-24" aria-hidden />
+      {/* Reserve space for the fixed CTA bar (~60px = 8px padding * 2 + 44px button + 1px border). */}
+      <div className="h-20" aria-hidden />
 
       <ProductCTA />
     </ProductSelectionProvider>
