@@ -33,7 +33,7 @@ export function ProductCTA() {
   const productUrl = origin ? `${origin}/producto/${product.slug}` : '';
   const variantSuffix = selectedVariant ? ` — variante: ${selectedVariant.name}` : '';
   const message = [
-    'Hola Shirley, me interesa este producto:',
+    'Hola Ámantis, me interesa este producto:',
     '',
     `• ${product.name}${variantSuffix} — ${formatMXN(Number(displayPrice))}`,
     '',
@@ -48,6 +48,7 @@ export function ProductCTA() {
       {
         lineId: `${product.id}::${selectedVariant?.id ?? 'base'}`,
         productId: product.id,
+        slug: product.slug,
         variantId: selectedVariant?.id ?? null,
         name: product.name,
         variantLabel: selectedVariant?.name ?? null,

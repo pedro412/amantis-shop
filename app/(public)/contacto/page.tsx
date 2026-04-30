@@ -80,7 +80,7 @@ export default function ContactoPage() {
     {
       icon: FacebookGlyph,
       label: 'Facebook',
-      value: 'Ámantis Lencería',
+      value: 'Ámantis',
       href: 'https://www.facebook.com/profile.php?id=100077885707039',
       hint: 'Promociones y comunidad',
     },

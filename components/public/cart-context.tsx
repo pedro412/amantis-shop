@@ -10,13 +10,16 @@ import {
 } from 'react';
 
 const STORAGE_KEY = 'amantis.cart';
-const STORAGE_VERSION = 1;
+// v2 added `slug` so cart rows can link back to the product page.
+const STORAGE_VERSION = 2;
 
 export type CartItem = {
   /** Stable line key — composed of productId + variantId so two variants of
    *  the same product live as separate lines. */
   lineId: string;
   productId: string;
+  /** Product slug for navigating back to /producto/[slug] from the cart. */
+  slug: string;
   variantId: string | null;
   name: string;
   variantLabel: string | null;
