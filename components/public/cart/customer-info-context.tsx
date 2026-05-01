@@ -19,8 +19,8 @@ import {
 type CustomerInfoContextValue = {
   info: CustomerInfo;
   hydrated: boolean;
-  setName: (name: string) => void;
-  setZone: (zone: string) => void;
+  /** Update one field at a time — keeps callers terse. */
+  setField: <K extends keyof CustomerInfo>(key: K, value: CustomerInfo[K]) => void;
 };
 
 const CustomerInfoContext = createContext<CustomerInfoContextValue | null>(null);
@@ -39,17 +39,16 @@ export function CustomerInfoProvider({ children }: { children: React.ReactNode }
     setCustomerInfo(info);
   }, [info, hydrated]);
 
-  const setName = useCallback((name: string) => {
-    setInfo((prev) => ({ ...prev, name }));
-  }, []);
-
-  const setZone = useCallback((zone: string) => {
-    setInfo((prev) => ({ ...prev, zone }));
-  }, []);
+  const setField = useCallback<CustomerInfoContextValue['setField']>(
+    (key, value) => {
+      setInfo((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
 
   const value = useMemo<CustomerInfoContextValue>(
-    () => ({ info, hydrated, setName, setZone }),
-    [info, hydrated, setName, setZone],
+    () => ({ info, hydrated, setField }),
+    [info, hydrated, setField],
   );
 
   return (
