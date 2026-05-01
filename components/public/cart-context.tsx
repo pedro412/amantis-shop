@@ -43,6 +43,9 @@ type CartContextValue = {
   setQty: (lineId: string, qty: number) => void;
   remove: (lineId: string) => void;
   clear: () => void;
+  /** Replace the entire cart with the given items. Used when hydrating from
+   *  a shared cart link (?state=...). */
+  replaceAll: (items: CartItem[]) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -121,11 +124,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
   }, []);
 
+  const replaceAll = useCallback<CartContextValue['replaceAll']>((next) => {
+    setItems(next);
+  }, []);
+
   const count = useMemo(() => items.reduce((acc, i) => acc + i.qty, 0), [items]);
 
   const value = useMemo<CartContextValue>(
-    () => ({ items, count, hydrated, add, setQty, remove, clear }),
-    [items, count, hydrated, add, setQty, remove, clear],
+    () => ({ items, count, hydrated, add, setQty, remove, clear, replaceAll }),
+    [items, count, hydrated, add, setQty, remove, clear, replaceAll],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

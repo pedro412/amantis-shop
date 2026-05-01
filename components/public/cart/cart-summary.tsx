@@ -1,7 +1,11 @@
 'use client';
 
+import { Link2 } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { useCart } from '@/components/public/cart-context';
 import { Button } from '@/components/ui/button';
+import { encodeCartState } from '@/lib/cart-link';
 import { SHIPPING_COSTS, getMissingFields } from '@/lib/customer-info';
 import { formatMXN } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -20,8 +24,39 @@ export function CartSummary() {
   const total = shippingCost === null ? subtotal : subtotal + shippingCost;
   const missing = getMissingFields(info);
   const canSend = items.length > 0 && missing.length === 0;
+  const canShare = items.length > 0;
   const message = buildOrderMessage(items, info);
   const href = buildWhatsappUrl(message);
+
+  const onShareLink = async () => {
+    if (typeof window === 'undefined') return;
+    const result = encodeCartState(items, info);
+    if (!result.ok) {
+      toast.error(
+        result.reason === 'too_many_items'
+          ? 'El carrito tiene demasiados productos para compartir'
+          : 'El link es muy largo, quita algunos productos',
+      );
+      return;
+    }
+    const url = `${window.location.origin}/carrito?state=${result.encoded}`;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        toast.success('Link copiado');
+        return;
+      }
+      // Fallback: native share sheet on mobile if clipboard isn't available.
+      if (navigator.share) {
+        await navigator.share({ url, title: 'Mi pedido en Ámantis' });
+        return;
+      }
+      toast.error('No pudimos copiar el link en este navegador');
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      toast.error('No pudimos copiar el link, intenta de nuevo');
+    }
+  };
 
   return (
     <div
@@ -81,6 +116,22 @@ export function CartSummary() {
             </span>
           )}
         </Button>
+
+        {canShare && (
+          <button
+            type="button"
+            onClick={onShareLink}
+            className={cn(
+              'mt-1 inline-flex w-full items-center justify-center gap-1.5 rounded-full px-3 py-1.5',
+              'font-sans text-[12px] font-medium text-fg-muted transition-colors',
+              'hover:bg-surface-alt hover:text-fg',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
+            )}
+          >
+            <Link2 aria-hidden className="h-3.5 w-3.5" strokeWidth={1.75} />
+            Copiar link de mi pedido
+          </button>
+        )}
       </div>
     </div>
   );
