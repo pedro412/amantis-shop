@@ -21,6 +21,10 @@ type CustomerInfoContextValue = {
   hydrated: boolean;
   /** Update one field at a time — keeps callers terse. */
   setField: <K extends keyof CustomerInfo>(key: K, value: CustomerInfo[K]) => void;
+  /** Replace the whole record at once. Used when hydrating from a shared
+   *  cart link or any other "import full state" flow. Unknown / missing
+   *  fields fall back to the empty defaults so partial payloads are safe. */
+  replaceAll: (next: Partial<CustomerInfo>) => void;
 };
 
 const CustomerInfoContext = createContext<CustomerInfoContextValue | null>(null);
@@ -46,9 +50,16 @@ export function CustomerInfoProvider({ children }: { children: React.ReactNode }
     [],
   );
 
+  const replaceAll = useCallback<CustomerInfoContextValue['replaceAll']>(
+    (next) => {
+      setInfo({ ...EMPTY_CUSTOMER, ...next });
+    },
+    [],
+  );
+
   const value = useMemo<CustomerInfoContextValue>(
-    () => ({ info, hydrated, setField }),
-    [info, hydrated, setField],
+    () => ({ info, hydrated, setField, replaceAll }),
+    [info, hydrated, setField, replaceAll],
   );
 
   return (

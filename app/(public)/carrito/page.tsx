@@ -9,6 +9,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function CarritoPage() {
-  return <CartPage />;
+type Props = {
+  searchParams: { state?: string };
+};
+
+export default function CarritoPage({ searchParams }: Props) {
+  return <CartPage linkState={searchParams.state} />;
 }
