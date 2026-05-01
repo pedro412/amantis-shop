@@ -24,6 +24,9 @@
     --surface: 0 0% 100%;
     --surface-alt: 34 38% 92%;
 
+    /* Public header background — #f9e2e2 (Shirley's brand pastel from Canva). */
+    --header-bg: 0 74% 93%;
+
     /* Rose accents */
     --rose: 7 32% 70%;
     --rose-light: 13 38% 87%;

@@ -25,6 +25,7 @@ const config: Config = {
         },
         // Warm neutrals
         bg: 'hsl(var(--bg))',
+        'header-bg': 'hsl(var(--header-bg))',
         surface: {
           DEFAULT: 'hsl(var(--surface))',
           alt: 'hsl(var(--surface-alt))',

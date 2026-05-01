@@ -14,8 +14,7 @@ export function PublicHeader() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-30 border-b border-border/60 bg-bg/85 backdrop-blur-sm',
-        'supports-[backdrop-filter]:bg-bg/70',
+        'sticky top-0 z-30 border-b border-primary/10 bg-header-bg',
       )}
     >
       <div className="flex h-14 items-center gap-2 px-4">
@@ -75,7 +74,7 @@ function IconButton({
       aria-label={label}
       className={cn(
         'inline-flex h-11 w-11 items-center justify-center rounded-full text-fg',
-        'transition-colors duration-base ease-smooth hover:bg-surface-alt',
+        'transition-colors duration-base ease-smooth hover:bg-primary/10',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
       )}
     >
