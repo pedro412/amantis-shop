@@ -160,3 +160,17 @@ model ProductTag {
   @@id([productId, tagId])
   @@index([tagId])
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Announcements (top bar managed from admin)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Announcement {
+  id        String   @id @default(cuid())
+  message   String   @db.VarChar(200)
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, updatedAt])
+}
