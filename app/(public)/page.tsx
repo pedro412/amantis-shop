@@ -9,6 +9,7 @@ import {
   organizationSchema,
   websiteSchema,
 } from '@/lib/structured-data';
+import { getDrawerCategories } from '@/server/queries/categories';
 import {
   getFeaturedProducts,
   getHomeCategories,
@@ -41,8 +42,9 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function Home() {
-  const [categories, featured, novedades] = await Promise.all([
+  const [categories, allCategories, featured, novedades] = await Promise.all([
     getHomeCategories(),
+    getDrawerCategories(),
     getFeaturedProducts(),
     getNovedades(),
   ]);
@@ -51,7 +53,7 @@ export default async function Home() {
     <>
       <JsonLd data={[organizationSchema(), websiteSchema()]} />
       <HomeHero />
-      <CategoriesGrid categories={categories} />
+      <CategoriesGrid categories={categories} allCategories={allCategories} />
       <ProductsRow title="Destacados" products={featured} />
       <ProductsRow title="Novedades" products={novedades} />
       <TrustStrip />

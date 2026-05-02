@@ -1,14 +1,20 @@
 'use client';
 
-import { Search, ShoppingBag } from 'lucide-react';
+import { Menu, Search, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 
 import { Logo } from '@/components/logo';
+import { CategoriesDrawer } from '@/components/public/categories-drawer';
 import { cn } from '@/lib/utils';
+import type { DrawerCategory } from '@/server/queries/categories';
 
 import { useCart } from './cart-context';
 
-export function PublicHeader() {
+type Props = {
+  categories: DrawerCategory[];
+};
+
+export function PublicHeader({ categories }: Props) {
   const { count, hydrated } = useCart();
 
   return (
@@ -17,7 +23,24 @@ export function PublicHeader() {
         'sticky top-0 z-30 border-b border-primary/10 bg-header-bg',
       )}
     >
-      <div className="flex h-14 items-center gap-2 px-4">
+      <div className="flex h-14 items-center gap-1 px-3">
+        <CategoriesDrawer
+          categories={categories}
+          trigger={
+            <button
+              type="button"
+              aria-label="Abrir categorías"
+              className={cn(
+                'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-fg',
+                'transition-colors duration-base ease-smooth hover:bg-primary/10',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
+              )}
+            >
+              <Menu aria-hidden className="h-5 w-5" strokeWidth={1.5} />
+            </button>
+          }
+        />
+
         <Link
           href="/"
           aria-label="Ámantis · Inicio"

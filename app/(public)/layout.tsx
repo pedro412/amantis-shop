@@ -9,13 +9,17 @@ import { PublicFooter } from '@/components/public/public-footer';
 import { PublicHeader } from '@/components/public/public-header';
 import { AGE_COOKIE, AGE_VALUE } from '@/lib/age-gate';
 import { getActiveAnnouncement } from '@/server/queries/announcements';
+import { getDrawerCategories } from '@/server/queries/categories';
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   // SSR cookie check is the source of truth so verified visitors never see the
   // gate flicker. Children render in the DOM behind the gate either way so
   // crawlers index the catalog regardless of cookie state.
   const ageVerified = cookies().get(AGE_COOKIE)?.value === AGE_VALUE;
-  const announcement = await getActiveAnnouncement();
+  const [announcement, drawerCategories] = await Promise.all([
+    getActiveAnnouncement(),
+    getDrawerCategories(),
+  ]);
 
   return (
     <CartProvider>
@@ -28,7 +32,7 @@ export default async function PublicLayout({ children }: { children: React.React
         {announcement && (
           <AnnouncementBar id={announcement.id} message={announcement.message} />
         )}
-        <PublicHeader />
+        <PublicHeader categories={drawerCategories} />
         <main className="flex-1">{children}</main>
         <PublicFooter />
         <PublicBottomNav />
