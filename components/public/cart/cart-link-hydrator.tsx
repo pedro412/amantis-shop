@@ -101,5 +101,10 @@ function cleanUrl() {
   if (typeof window === 'undefined') return;
   const url = new URL(window.location.href);
   url.searchParams.delete('state');
-  window.history.replaceState({}, '', url.pathname + url.search + url.hash);
+  // Path-segment form: /carrito/c/<encoded> → collapse back to /carrito so a
+  // refresh doesn't re-run hydration. Only rewrites when the path matches the
+  // shared-cart route so we never accidentally strip a different segment.
+  const sharedPath = url.pathname.match(/^\/carrito\/c\/[^/]+\/?$/);
+  const targetPath = sharedPath ? '/carrito' : url.pathname;
+  window.history.replaceState({}, '', targetPath + url.search + url.hash);
 }
