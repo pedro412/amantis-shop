@@ -15,6 +15,7 @@ const MSI_THRESHOLD = 1500;
 export function buildOrderMessage(
   items: CartItem[],
   customer?: Partial<CustomerInfo>,
+  cartLink?: string,
 ): string {
   if (items.length === 0) return '';
 
@@ -88,6 +89,13 @@ export function buildOrderMessage(
     out.push('');
     out.push('Datos:');
     out.push(...detailLines);
+  }
+
+  // Deep link to the reconstructed cart so Shirley (operator) can open the
+  // pedido in the catalog and see images / prices / details.
+  if (cartLink) {
+    out.push('');
+    out.push(`Ver pedido: ${cartLink}`);
   }
 
   return out.join('\n');
