@@ -8,13 +8,13 @@ const ITEMS = [
   },
   {
     Icon: Truck,
-    title: 'Entrega local',
-    body: 'Coordinamos día y zona contigo por WhatsApp.',
+    title: 'Entrega local y nacional',
+    body: 'Local en Ciudad del Carmen y envío nacional por paquetería. Coordinamos por WhatsApp.',
   },
   {
     Icon: MessageCircle,
     title: 'Atención personal',
-    body: 'Una sola persona te atiende, de mujer a mujer.',
+    body: 'Una sola persona te atiende, con discreción y trato cercano.',
   },
 ] as const;
 

@@ -18,7 +18,7 @@ import {
 
 const HOME_TITLE = 'Ámantis · Bienestar e intimidad';
 const HOME_DESCRIPTION =
-  'Catálogo de productos para el bienestar y la intimidad. Pedidos por WhatsApp con envío local. Solo para mayores de 18 años.';
+  'Catálogo de productos para el bienestar y la intimidad. Pedidos por WhatsApp con entrega local y envío nacional. Solo para mayores de 18 años.';
 
 export const metadata: Metadata = {
   title: HOME_TITLE,
