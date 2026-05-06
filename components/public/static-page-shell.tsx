@@ -10,7 +10,7 @@ type Props = {
 /** Shared layout for every static informational page (Acerca, FAQ, etc). */
 export function StaticPageShell({ title, intro, children }: Props) {
   return (
-    <article className="bg-calzones-pattern bg-repeat px-5 pt-2 pb-10">
+    <article className="px-5 pt-2 pb-10">
       <div className="flex items-center gap-3 pb-3">
         <Link
           href="/"
