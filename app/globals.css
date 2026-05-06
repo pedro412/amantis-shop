@@ -53,12 +53,51 @@
   /* Reset font + base body styles. iOS won't auto-zoom on inputs ≥ 16px. */
   html {
     -webkit-text-size-adjust: 100%;
+    /* Explicit root background — Chrome's force-dark heuristic skips elements
+       with an explicit non-default background, so this keeps the canvas crema
+       even when the user has "Force dark mode for sites" enabled. */
+    background-color: hsl(var(--bg));
   }
 
   body {
     @apply bg-bg font-sans text-body text-fg;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* Browsers that ignore color-scheme but still honor prefers-color-scheme
+     (some Android skins, Samsung Internet pre-25) get the same light tokens
+     re-declared so the auto-dark inversion has nothing to invert. */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: only light;
+
+      --primary: 351 79% 27%;
+      --primary-foreground: 33 38% 96%;
+      --primary-hover: 350 80% 21%;
+      --primary-soft: 18 50% 92%;
+
+      --bg: 33 38% 96%;
+      --surface: 0 0% 100%;
+      --surface-alt: 34 38% 92%;
+      --header-bg: 0 74% 93%;
+
+      --rose: 7 32% 70%;
+      --rose-light: 13 38% 87%;
+
+      --fg: 20 13% 9%;
+      --fg-muted: 24 11% 38%;
+      --fg-subtle: 22 9% 57%;
+      --fg-inverse: 33 38% 96%;
+
+      --border: 33 30% 87%;
+      --border-strong: 34 24% 78%;
+
+      --success: 101 31% 33%;
+      --warning: 34 70% 39%;
+      --danger: 0 53% 39%;
+      --info: 213 36% 36%;
+    }
   }
 
   h1,
