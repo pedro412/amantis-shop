@@ -100,6 +100,13 @@ export function CartLinkHydrator({ state }: Props) {
 function cleanUrl() {
   if (typeof window === 'undefined') return;
   const url = new URL(window.location.href);
+  // Path-segment route /carrito/c/{encoded} → collapse back to /carrito.
+  // Backwards compat: also strip the legacy ?state= query param.
+  const pathMatch = url.pathname.match(/^(.*\/carrito)\/c\/[^/]+\/?$/);
+  if (pathMatch) {
+    window.history.replaceState({}, '', pathMatch[1] + url.search + url.hash);
+    return;
+  }
   url.searchParams.delete('state');
   window.history.replaceState({}, '', url.pathname + url.search + url.hash);
 }

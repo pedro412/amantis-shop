@@ -15,6 +15,7 @@ const MSI_THRESHOLD = 1500;
 export function buildOrderMessage(
   items: CartItem[],
   customer?: Partial<CustomerInfo>,
+  cartLink?: string,
 ): string {
   if (items.length === 0) return '';
 
@@ -88,6 +89,13 @@ export function buildOrderMessage(
     out.push('');
     out.push('Datos:');
     out.push(...detailLines);
+  }
+
+  // Path-segment link (not ?state=) so WhatsApp's autolinker doesn't truncate
+  // the base64url payload. Lives at the end so it's the last thing Shirley sees.
+  if (cartLink) {
+    out.push('');
+    out.push(`Ver pedido: ${cartLink}`);
   }
 
   return out.join('\n');
