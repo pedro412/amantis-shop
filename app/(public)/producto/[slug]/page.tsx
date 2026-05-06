@@ -35,7 +35,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = `${product.name} · Ámantis`;
   const canonical = `/producto/${product.slug}`;
   const firstImageKey = product.imageKeys[0];
-  const ogImage = firstImageKey ? tryImagePublicUrl(firstImageKey, 'medium') : null;
+  // 'full' (1200px long edge) instead of 'medium' (600px) — Facebook's
+  // Sharing Debugger downgrades or skips images under ~1200px wide, which
+  // is why product previews were showing up blank.
+  const ogImage = firstImageKey ? tryImagePublicUrl(firstImageKey, 'full') : null;
   return {
     title,
     description,

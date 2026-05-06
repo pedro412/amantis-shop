@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { StaticPageShell } from '@/components/public/static-page-shell';
+import { DEFAULT_OG_IMAGES } from '@/lib/og-defaults';
 
 export const dynamic = 'force-static';
 
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: '/faq',
+    images: DEFAULT_OG_IMAGES,
   },
 };
 
