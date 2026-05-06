@@ -97,9 +97,6 @@ const config: Config = {
         small: ['13px', { lineHeight: '1.45' }],
         caption: ['12px', { lineHeight: '1.40' }],
       },
-      backgroundImage: {
-        'calzones-pattern': "url('/patterns/calzones.webp')",
-      },
       borderRadius: {
         sm: '6px',
         md: '10px',
