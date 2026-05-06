@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ShoppingBag } from 'lucide-react';
+import { Check, MessageCircle, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { useCart } from '@/components/public/cart-context';
@@ -70,42 +70,39 @@ export function ProductCTA() {
       )}
     >
       <div className="flex items-center gap-2 px-3 py-2">
-        <button
+        <Button
           type="button"
           onClick={onAddToCart}
           disabled={!available || justAdded}
-          aria-label={
-            justAdded ? 'Agregado al carrito' : 'Agregar al carrito'
-          }
+          variant="primary"
+          size="md"
           className={cn(
-            'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-[1.5px]',
-            'transition-colors duration-base ease-smooth',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
-            justAdded
-              ? 'border-success bg-success text-fg-inverse'
-              : 'border-primary bg-bg text-primary hover:bg-primary-soft active:bg-primary-soft',
-            !available && !justAdded && 'cursor-not-allowed border-border text-fg-subtle hover:bg-bg',
+            'flex-1',
+            // Success flash after adding — overrides primary bg until reset.
+            justAdded && 'bg-success text-fg-inverse hover:bg-success active:bg-success',
           )}
         >
           {justAdded ? (
-            <Check aria-hidden className="h-5 w-5" strokeWidth={2.25} />
+            <>
+              <Check aria-hidden strokeWidth={2.25} />
+              Agregado
+            </>
           ) : (
-            <ShoppingBag aria-hidden className="h-5 w-5" strokeWidth={1.75} />
+            <>
+              <ShoppingBag aria-hidden strokeWidth={1.75} />
+              {available ? 'Agregar al carrito' : 'No disponible'}
+            </>
           )}
-        </button>
+        </Button>
 
-        <Button
-          asChild
-          size="md"
-          variant="primary"
-          className="flex-1"
-        >
+        <Button asChild variant="secondary" size="icon">
           <a
             href={buildWhatsappUrl(message)}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Pedir por WhatsApp"
           >
-            Pedir por WhatsApp
+            <MessageCircle aria-hidden strokeWidth={1.75} />
           </a>
         </Button>
       </div>
