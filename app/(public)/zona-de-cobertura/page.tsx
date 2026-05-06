@@ -5,6 +5,7 @@ import {
   StaticSection,
 } from '@/components/public/static-page-shell';
 import { Button } from '@/components/ui/button';
+import { DEFAULT_OG_IMAGES } from '@/lib/og-defaults';
 import { buildWhatsappUrl } from '@/lib/whatsapp';
 
 export const dynamic = 'force-static';
@@ -22,6 +23,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: '/zona-de-cobertura',
+    images: DEFAULT_OG_IMAGES,
   },
 };
 

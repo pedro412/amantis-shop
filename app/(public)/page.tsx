@@ -4,6 +4,7 @@ import { CategoriesGrid } from '@/components/public/home/categories-grid';
 import { HomeHero } from '@/components/public/home/hero';
 import { ProductsRow } from '@/components/public/home/products-row';
 import { TrustStrip } from '@/components/public/home/trust-strip';
+import { DEFAULT_OG_IMAGES, DEFAULT_TWITTER_IMAGES } from '@/lib/og-defaults';
 import {
   JsonLd,
   organizationSchema,
@@ -29,10 +30,12 @@ export const metadata: Metadata = {
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
     url: '/',
+    images: DEFAULT_OG_IMAGES,
   },
   twitter: {
     card: 'summary_large_image',
     title: HOME_TITLE,
+    images: DEFAULT_TWITTER_IMAGES,
     description: HOME_DESCRIPTION,
   },
 };
