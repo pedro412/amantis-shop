@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { buildWhatsappUrl } from '@/lib/whatsapp';
 
+import { CartBump, CartCountBadge } from './cart-bump';
 import { useCart } from './cart-context';
 
 type Item = {
@@ -44,25 +45,31 @@ export function PublicBottomNav() {
           const showCartBadge =
             item.href === '/carrito' && hydrated && count > 0;
 
-          const content = (
-            <span className="relative inline-flex">
+          const isCartItem = item.href === '/carrito';
+          const iconWithBadge = (
+            <>
               <item.Icon
                 aria-hidden
                 className="h-5 w-5"
                 strokeWidth={active ? 1.8 : 1.5}
               />
               {showCartBadge && (
-                <span
-                  aria-hidden
+                <CartCountBadge
+                  count={count}
                   className={cn(
                     'absolute -right-2 -top-1.5 inline-flex h-4 min-w-[16px] items-center justify-center',
                     'rounded-full bg-primary px-1 font-sans text-[10px] font-semibold text-primary-foreground',
                   )}
-                >
-                  {count > 99 ? '99+' : count}
-                </span>
+                />
               )}
-            </span>
+            </>
+          );
+          // Only the cart item bumps on add(); the other nav icons stay
+          // plain to avoid pulling them into framer-motion needlessly.
+          const content = isCartItem ? (
+            <CartBump>{iconWithBadge}</CartBump>
+          ) : (
+            <span className="relative inline-flex">{iconWithBadge}</span>
           );
 
           const className = cn(

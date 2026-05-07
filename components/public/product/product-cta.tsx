@@ -3,6 +3,7 @@
 import { Check, MessageCircle, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { CartBump } from '@/components/public/cart-bump';
 import { useCart } from '@/components/public/cart-context';
 import { Button } from '@/components/ui/button';
 import { formatMXN } from '@/lib/format';
@@ -84,12 +85,16 @@ export function ProductCTA() {
         >
           {justAdded ? (
             <>
-              <Check aria-hidden strokeWidth={2.25} />
+              <CartBump>
+                <Check aria-hidden strokeWidth={2.25} />
+              </CartBump>
               Agregado
             </>
           ) : (
             <>
-              <ShoppingBag aria-hidden strokeWidth={1.75} />
+              <CartBump>
+                <ShoppingBag aria-hidden strokeWidth={1.75} />
+              </CartBump>
               {available ? 'Agregar al carrito' : 'No disponible'}
             </>
           )}

@@ -39,6 +39,11 @@ type CartContextValue = {
   /** Hydrated flag — false during SSR + first paint, true once localStorage
    *  has been read. Use this to suppress badge flicker. */
   hydrated: boolean;
+  /** Monotonic counter incremented every time `add()` is called. Consumers
+   *  watch this to trigger micro-animations on the cart icon (LIT-265). It
+   *  intentionally does NOT bump on setQty / remove / replaceAll — only the
+   *  "I just added a product" intent should ripple. */
+  bumpedAt: number;
   add: (item: Omit<CartItem, 'qty'>, qty?: number) => void;
   setQty: (lineId: string, qty: number) => void;
   remove: (lineId: string) => void;
@@ -84,6 +89,7 @@ function writePersisted(items: CartItem[]) {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [bumpedAt, setBumpedAt] = useState(0);
 
   // Hydrate from localStorage on first client render. Doing this in an effect
   // (not useState initializer) keeps SSR output deterministic.
@@ -107,6 +113,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       next[idx] = { ...existing, qty: existing.qty + qty };
       return next;
     });
+    setBumpedAt((n) => n + 1);
   }, []);
 
   const setQty = useCallback<CartContextValue['setQty']>((lineId, qty) => {
@@ -131,8 +138,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const count = useMemo(() => items.reduce((acc, i) => acc + i.qty, 0), [items]);
 
   const value = useMemo<CartContextValue>(
-    () => ({ items, count, hydrated, add, setQty, remove, clear, replaceAll }),
-    [items, count, hydrated, add, setQty, remove, clear, replaceAll],
+    () => ({ items, count, hydrated, bumpedAt, add, setQty, remove, clear, replaceAll }),
+    [items, count, hydrated, bumpedAt, add, setQty, remove, clear, replaceAll],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
