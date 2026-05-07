@@ -8,6 +8,7 @@ import { CategoriesDrawer } from '@/components/public/categories-drawer';
 import { cn } from '@/lib/utils';
 import type { DrawerCategory } from '@/server/queries/categories';
 
+import { CartBump, CartCountBadge } from './cart-bump';
 import { useCart } from './cart-context';
 
 type Props = {
@@ -55,20 +56,18 @@ export function PublicHeader({ categories }: Props) {
           </IconButton>
 
           <IconButton href="/carrito" label={cartLabel(count)}>
-            <span className="relative inline-flex">
+            <CartBump>
               <ShoppingBag aria-hidden className="h-5 w-5" strokeWidth={1.5} />
               {hydrated && count > 0 && (
-                <span
-                  aria-hidden
+                <CartCountBadge
+                  count={count}
                   className={cn(
                     'absolute -right-1.5 -top-1.5 inline-flex h-4 min-w-[16px] items-center justify-center',
                     'rounded-full bg-primary px-1 font-sans text-[10px] font-semibold text-primary-foreground',
                   )}
-                >
-                  {count > 99 ? '99+' : count}
-                </span>
+                />
               )}
-            </span>
+            </CartBump>
           </IconButton>
         </div>
       </div>
