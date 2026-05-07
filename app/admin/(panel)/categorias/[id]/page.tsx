@@ -11,7 +11,7 @@ import { CategoryForm } from '../category-form';
 import { DangerZone } from '../danger-zone';
 
 export const metadata: Metadata = {
-  title: 'Editar categoría · Ámantis',
+  title: 'Editar categoría · A’Mantis',
   robots: { index: false, follow: false },
 };
 

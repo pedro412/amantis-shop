@@ -6,7 +6,7 @@ import { Logo } from '@/components/logo';
 import { LoginForm } from './login-form';
 
 export const metadata: Metadata = {
-  title: 'Acceder · Ámantis',
+  title: 'Acceder · A’Mantis',
   robots: { index: false, follow: false },
 };
 

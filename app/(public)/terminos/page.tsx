@@ -11,7 +11,7 @@ export const dynamic = 'force-static';
 
 const TITLE = 'Términos y condiciones';
 const DESCRIPTION =
-  'Reglas de uso del sitio Ámantis: pedidos por WhatsApp, pagos, envíos, devoluciones por higiene y edad mínima.';
+  'Reglas de uso del sitio A’Mantis: pedidos por WhatsApp, pagos, envíos, devoluciones por higiene y edad mínima.';
 const LAST_UPDATED = '29 de abril de 2026';
 
 export const metadata: Metadata = {
@@ -35,8 +35,8 @@ export default function TerminosPage() {
     >
       <StaticSection title="1. Aceptación de los términos">
         <p>
-          Al utilizar este sitio web y los canales de venta de Ámantis (en
-          adelante, “Ámantis” o “el Sitio”), aceptas los presentes Términos y
+          Al utilizar este sitio web y los canales de venta de A’Mantis (en
+          adelante, “A’Mantis” o “el Sitio”), aceptas los presentes Términos y
           Condiciones. Si no estás de acuerdo, te pedimos no usar el Sitio ni
           realizar pedidos.
         </p>
@@ -44,7 +44,7 @@ export default function TerminosPage() {
 
       <StaticSection title="2. Edad mínima">
         <p>
-          Ámantis comercializa productos para uso íntimo y bienestar adulto.
+          A’Mantis comercializa productos para uso íntimo y bienestar adulto.
           Está dirigido exclusivamente a personas mayores de 18 años. Al
           ingresar al Sitio confirmas, bajo protesta de decir verdad, que eres
           mayor de edad conforme a la legislación de tu lugar de residencia.
@@ -54,7 +54,7 @@ export default function TerminosPage() {
       <StaticSection title="3. Naturaleza del servicio">
         <p>
           Este Sitio funciona como catálogo digital. Los pedidos se concretan a
-          través de WhatsApp con personal de Ámantis: el Sitio no procesa
+          través de WhatsApp con personal de A’Mantis: el Sitio no procesa
           cobros automáticos ni genera órdenes vinculantes hasta que la compra
           se confirma en la conversación con nosotras.
         </p>
@@ -89,18 +89,18 @@ export default function TerminosPage() {
           </li>
           <li>
             <strong>Tarjeta de crédito o débito</strong> — vía link de pago
-            generado por Ámantis y enviado al cliente por WhatsApp. Con tarjetas
+            generado por A’Mantis y enviado al cliente por WhatsApp. Con tarjetas
             de crédito participantes aplica la opción de 3 meses sin intereses en
             compras desde $1,500 MXN.
           </li>
         </ul>
         <p>
           El Sitio no procesa pagos directamente; toda transacción se coordina y
-          ejecuta a través del canal de WhatsApp de Ámantis.
+          ejecuta a través del canal de WhatsApp de A’Mantis.
         </p>
         <p>
           Es responsabilidad del cliente verificar que los datos bancarios o el
-          link de pago sean los oficiales que Ámantis te haya compartido. No nos
+          link de pago sean los oficiales que A’Mantis te haya compartido. No nos
           hacemos responsables por pagos enviados a cuentas o links distintos a
           los confirmados en la conversación.
         </p>
@@ -108,7 +108,7 @@ export default function TerminosPage() {
 
       <StaticSection title="6. Facturación">
         <p>
-          Por el momento Ámantis no emite facturas fiscales (CFDI). En caso de
+          Por el momento A’Mantis no emite facturas fiscales (CFDI). En caso de
           requerirse en el futuro, los términos de facturación se publicarán en
           este apartado.
         </p>
@@ -149,7 +149,7 @@ export default function TerminosPage() {
       <StaticSection title="9. Propiedad intelectual">
         <p>
           Todos los contenidos del Sitio (textos, imágenes, marca, logotipos,
-          diseño) son propiedad de Ámantis o se utilizan con autorización.
+          diseño) son propiedad de A’Mantis o se utilizan con autorización.
           Queda prohibida su reproducción total o parcial sin consentimiento
           expreso.
         </p>
@@ -157,7 +157,7 @@ export default function TerminosPage() {
 
       <StaticSection title="10. Limitación de responsabilidad">
         <p>
-          Ámantis no será responsable por daños indirectos, incidentales o
+          A’Mantis no será responsable por daños indirectos, incidentales o
           consecuentes derivados del uso del Sitio o del uso indebido de los
           productos. La utilización de los productos es responsabilidad del
           cliente, quien declara conocer las indicaciones, advertencias e
@@ -197,7 +197,7 @@ export default function TerminosPage() {
       <p className="rounded-md border border-border/60 bg-surface-alt p-3 font-sans text-[12px] leading-relaxed text-fg-muted">
         Estos términos son una versión adaptada a partir de prácticas comunes
         para el comercio electrónico en México. Su redacción podrá ajustarse
-        tras revisión legal específica para Ámantis.
+        tras revisión legal específica para A’Mantis.
       </p>
     </StaticPageShell>
   );

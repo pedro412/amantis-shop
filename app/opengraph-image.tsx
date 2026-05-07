@@ -5,7 +5,7 @@ import { ImageResponse } from 'next/og';
 // aspect (~1.91:1) and minimum size, which is what was missing — most of the
 // site had no og:image at all and FB couldn't show a preview.
 export const runtime = 'edge';
-export const alt = 'Ámantis · Bienestar e intimidad';
+export const alt = 'A’Mantis · Bienestar e intimidad';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -37,7 +37,7 @@ export default async function OpengraphImage() {
             lineHeight: 1,
           }}
         >
-          Ámantis
+          A’Mantis
         </div>
         <div
           style={{

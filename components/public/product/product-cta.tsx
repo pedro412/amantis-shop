@@ -33,7 +33,7 @@ export function ProductCTA() {
   const productUrl = origin ? `${origin}/producto/${product.slug}` : '';
   const variantSuffix = selectedVariant ? ` — variante: ${selectedVariant.name}` : '';
   const message = [
-    'Hola Ámantis, me interesa este producto:',
+    'Hola A’Mantis, me interesa este producto:',
     '',
     `• ${product.name}${variantSuffix} — ${formatMXN(Number(displayPrice))}`,
     '',

@@ -10,7 +10,7 @@ export const dynamic = 'force-static';
 
 const TITLE = 'Acerca de';
 const DESCRIPTION =
-  'Ámantis es un catálogo digital pensado para que elegir productos íntimos sea cómodo, discreto y sin presión.';
+  'A’Mantis es un catálogo digital pensado para que elegir productos íntimos sea cómodo, discreto y sin presión.';
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -28,12 +28,12 @@ export const metadata: Metadata = {
 export default function AcercaDePage() {
   return (
     <StaticPageShell
-      title="Acerca de Ámantis"
+      title="Acerca de A’Mantis"
       intro="Un espacio cuidado para elegir productos íntimos sin prisa, sin juicios y con asesoría real."
     >
       <StaticSection title="Quiénes somos">
         <p>
-          Ámantis nace en Ciudad del Carmen con la intención de ofrecer
+          A’Mantis nace en Ciudad del Carmen con la intención de ofrecer
           lencería, accesorios y productos para el bienestar íntimo de adultos
           en un entorno cercano, profesional y libre de prejuicios.
         </p>

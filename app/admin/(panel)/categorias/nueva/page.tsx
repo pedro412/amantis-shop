@@ -9,7 +9,7 @@ import { prisma } from '@/server/lib/prisma';
 import { CategoryForm } from '../category-form';
 
 export const metadata: Metadata = {
-  title: 'Nueva categoría · Ámantis',
+  title: 'Nueva categoría · A’Mantis',
   robots: { index: false, follow: false },
 };
 

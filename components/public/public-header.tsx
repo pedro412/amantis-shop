@@ -43,7 +43,7 @@ export function PublicHeader({ categories }: Props) {
 
         <Link
           href="/"
-          aria-label="Ámantis · Inicio"
+          aria-label="A’Mantis · Inicio"
           className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
         >
           <Logo size={20} />

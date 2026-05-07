@@ -19,7 +19,7 @@ import {
 import { ProductosFilters } from './productos-filters';
 
 export const metadata: Metadata = {
-  title: 'Productos · Ámantis',
+  title: 'Productos · A’Mantis',
   robots: { index: false, follow: false },
 };
 

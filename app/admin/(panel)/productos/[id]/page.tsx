@@ -11,7 +11,7 @@ import { ProductDangerZone } from '../danger-zone';
 import { ProductForm } from '../product-form';
 
 export const metadata: Metadata = {
-  title: 'Editar producto · Ámantis',
+  title: 'Editar producto · A’Mantis',
   robots: { index: false, follow: false },
 };
 

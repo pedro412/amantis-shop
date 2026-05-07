@@ -8,7 +8,7 @@ import { AnnouncementForm } from './announcement-form';
 import { AnnouncementsList } from './announcements-list';
 
 export const metadata: Metadata = {
-  title: 'Ajustes · Ámantis',
+  title: 'Ajustes · A’Mantis',
   robots: { index: false, follow: false },
 };
 

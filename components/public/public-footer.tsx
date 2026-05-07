@@ -16,7 +16,7 @@ export function PublicFooter() {
   return (
     <footer className="bg-primary text-fg-inverse">
       <div className="mx-auto max-w-md px-5 py-8">
-        <p className="font-serif text-h3 font-medium">ÁMANTIS</p>
+        <p className="font-serif text-h3 font-medium">A’MANTIS</p>
         <p className="mt-1.5 font-sans text-[12px] leading-relaxed text-fg-inverse/85">
           Bienestar e intimidad para mayores de 18 años.
         </p>
@@ -40,7 +40,7 @@ export function PublicFooter() {
             adulto. Pedidos por WhatsApp · pago por transferencia bancaria.
           </p>
           <p className="mt-3 font-sans text-[11px] text-fg-inverse/70">
-            © {year} Ámantis · Todos los derechos reservados.
+            © {year} A’Mantis · Todos los derechos reservados.
           </p>
         </div>
       </div>

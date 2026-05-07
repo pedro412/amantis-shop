@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 
 export const metadata: Metadata = {
-  title: 'Sistema de diseño · Ámantis',
+  title: 'Sistema de diseño · A’Mantis',
   robots: { index: false, follow: false },
 };
 
@@ -86,7 +86,7 @@ export default function DesignSystemPage() {
       <header className="space-y-3 border-b border-border pb-8">
         <p className="eyebrow text-fg-muted">Sistema de diseño · v1.0</p>
         <div className="flex items-baseline gap-6">
-          <h1 className="font-serif text-display text-fg">Ámantis</h1>
+          <h1 className="font-serif text-display text-fg">A’Mantis</h1>
           <Logo size={28} />
         </div>
         <p className="max-w-2xl text-body-lg text-fg-muted">
