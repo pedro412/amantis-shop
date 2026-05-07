@@ -8,7 +8,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, type InputValidity } from '@/components/ui/input';
+import { isEmailValid } from '@/lib/validators';
 import { requestPasswordResetAction } from '@/server/actions/password-reset';
 
 const schema = z.object({
@@ -24,12 +25,22 @@ export function ForgotForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    watch,
+    formState: { errors, touchedFields },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { email: '' },
     mode: 'onSubmit',
   });
+
+  const email = watch('email');
+  const emailValidity: InputValidity = !email
+    ? 'idle'
+    : isEmailValid(email)
+      ? 'valid'
+      : touchedFields.email || errors.email
+        ? 'invalid'
+        : 'idle';
 
   const onSubmit = handleSubmit((values) => {
     setServerError(undefined);
@@ -89,6 +100,7 @@ export function ForgotForm() {
             autoCapitalize="none"
             spellCheck={false}
             disabled={pending}
+            validity={emailValidity}
             {...register('email')}
           />
           {errors.email && (
