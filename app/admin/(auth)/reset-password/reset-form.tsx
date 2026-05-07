@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, type InputValidity } from '@/components/ui/input';
 import { resetPasswordAction } from '@/server/actions/password-reset';
 
 const schema = z.object({
@@ -22,12 +22,23 @@ export function ResetForm({ token }: { token: string }) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    watch,
+    formState: { errors, touchedFields },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { password: '' },
     mode: 'onSubmit',
   });
+
+  const password = watch('password');
+  // Schema requires min 8 — match it for the green check.
+  const passwordValidity: InputValidity = !password
+    ? 'idle'
+    : password.length >= 8
+      ? 'valid'
+      : touchedFields.password || errors.password
+        ? 'invalid'
+        : 'idle';
 
   const onSubmit = handleSubmit((values) => {
     setServerError(undefined);
@@ -55,6 +66,7 @@ export function ResetForm({ token }: { token: string }) {
             type="password"
             autoComplete="new-password"
             disabled={pending}
+            validity={passwordValidity}
             {...register('password')}
           />
           {errors.password && (

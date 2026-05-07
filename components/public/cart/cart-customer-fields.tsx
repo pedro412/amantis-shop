@@ -10,7 +10,15 @@ import {
   SHIPPING_LABELS,
   type ShippingType,
 } from '@/lib/customer-info';
+import { useFieldValidity } from '@/lib/use-field-validity';
 import { cn } from '@/lib/utils';
+import {
+  isAddressValid,
+  isNameValid,
+  isPhoneValid,
+  isShortFieldValid,
+  isZipValid,
+} from '@/lib/validators';
 
 import { useCustomerInfo } from './customer-info-context';
 
@@ -47,6 +55,17 @@ export function CartCustomerFields() {
   const showLocal = info.shippingType === 'mandaditos';
   const showNational = info.shippingType === 'national';
   const showCommon = info.shippingType !== null;
+
+  // All hooks called unconditionally — hidden fields stay 'idle' since their
+  // value is empty.
+  const nameV = useFieldValidity(info.name, isNameValid);
+  const phoneV = useFieldValidity(info.phone, isPhoneValid);
+  const localAddressV = useFieldValidity(info.localAddress, isAddressValid);
+  const cityV = useFieldValidity(info.city, isShortFieldValid);
+  const stateV = useFieldValidity(info.state, isShortFieldValid);
+  const streetV = useFieldValidity(info.street, isAddressValid);
+  const neighborhoodV = useFieldValidity(info.neighborhood, isShortFieldValid);
+  const zipV = useFieldValidity(info.zip, isZipValid);
 
   return (
     <section className="mt-2 space-y-5 px-4 pb-2" aria-labelledby="customer-fields-heading">
@@ -129,6 +148,7 @@ export function CartCustomerFields() {
                 placeholder="Cómo te llamas"
                 value={hydrated ? info.name : ''}
                 onChange={(e) => setField('name', e.target.value)}
+                {...nameV}
               />
             </div>
 
@@ -142,6 +162,7 @@ export function CartCustomerFields() {
                 placeholder="938 123 4567"
                 value={hydrated ? info.phone : ''}
                 onChange={(e) => setField('phone', e.target.value)}
+                {...phoneV}
               />
             </div>
           </div>
@@ -158,6 +179,7 @@ export function CartCustomerFields() {
                   placeholder="Calle, número, colonia"
                   value={hydrated ? info.localAddress : ''}
                   onChange={(e) => setField('localAddress', e.target.value)}
+                  {...localAddressV}
                 />
               </div>
 
@@ -190,6 +212,7 @@ export function CartCustomerFields() {
                     placeholder="Mérida"
                     value={hydrated ? info.city : ''}
                     onChange={(e) => setField('city', e.target.value)}
+                    {...cityV}
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -201,6 +224,7 @@ export function CartCustomerFields() {
                     placeholder="Yucatán"
                     value={hydrated ? info.state : ''}
                     onChange={(e) => setField('state', e.target.value)}
+                    {...stateV}
                   />
                 </div>
               </div>
@@ -214,6 +238,7 @@ export function CartCustomerFields() {
                   placeholder="Av. Reforma 123"
                   value={hydrated ? info.street : ''}
                   onChange={(e) => setField('street', e.target.value)}
+                  {...streetV}
                 />
               </div>
 
@@ -227,6 +252,7 @@ export function CartCustomerFields() {
                     placeholder="Centro"
                     value={hydrated ? info.neighborhood : ''}
                     onChange={(e) => setField('neighborhood', e.target.value)}
+                    {...neighborhoodV}
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -239,6 +265,7 @@ export function CartCustomerFields() {
                     placeholder="97000"
                     value={hydrated ? info.zip : ''}
                     onChange={(e) => setField('zip', e.target.value)}
+                    {...zipV}
                   />
                 </div>
               </div>
