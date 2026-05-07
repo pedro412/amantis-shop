@@ -81,11 +81,14 @@ export function CartCustomerFields() {
         </p>
 
         <ul className="mt-3 space-y-2">
-          {OPTIONS.map((opt) => {
+          {OPTIONS.map((opt, idx) => {
             const selected = info.shippingType === opt.type;
             return (
               <li key={opt.type}>
                 <button
+                  // Stable id on the first option so the cart-summary CTA can
+                  // scroll/focus here when shippingType is the missing field.
+                  id={idx === 0 ? 'customer-shipping-type' : undefined}
                   type="button"
                   onClick={() => setField('shippingType', opt.type)}
                   aria-pressed={selected}
