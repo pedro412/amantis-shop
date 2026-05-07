@@ -53,7 +53,7 @@ export default async function Home() {
   ]);
 
   return (
-    <>
+    <div className="bg-calzones-pattern bg-repeat">
       <JsonLd data={[organizationSchema(), websiteSchema()]} />
       <HomeHero />
       <CategoriesGrid categories={categories} allCategories={allCategories} />
@@ -61,6 +61,6 @@ export default async function Home() {
       <ProductsRow title="Novedades" products={novedades} />
       <TrustStrip />
       <div className="h-8" aria-hidden />
-    </>
+    </div>
   );
 }
