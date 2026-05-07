@@ -45,7 +45,7 @@ const FAQS = [
   },
   {
     q: '¿Hay una edad mínima para comprar?',
-    a: 'Sí. Ámantis es exclusivamente para personas mayores de 18 años. Por eso al entrar al sitio se solicita confirmar la edad.',
+    a: 'Sí. A’Mantis es exclusivamente para personas mayores de 18 años. Por eso al entrar al sitio se solicita confirmar la edad.',
   },
   {
     q: '¿Mis datos son confidenciales?',

@@ -19,7 +19,7 @@ const cormorant = Cormorant_Garamond({
 
 import { SITE_URL } from '@/lib/site-url';
 
-const SITE_NAME = 'Ámantis';
+const SITE_NAME = 'A’Mantis';
 const SITE_DESCRIPTION =
   'Catálogo digital — bienestar e intimidad para mayores de 18 años.';
 

@@ -17,7 +17,7 @@ import {
   getNovedades,
 } from '@/server/queries/home';
 
-const HOME_TITLE = 'Ámantis · Bienestar e intimidad';
+const HOME_TITLE = 'A’Mantis · Bienestar e intimidad';
 const HOME_DESCRIPTION =
   'Catálogo de productos para el bienestar y la intimidad. Pedidos por WhatsApp con entrega local y envío nacional. Solo para mayores de 18 años.';
 

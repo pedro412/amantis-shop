@@ -13,7 +13,7 @@ export const dynamic = 'force-static';
 
 const TITLE = 'Cómo comprar';
 const DESCRIPTION =
-  'Cinco pasos para hacer tu pedido en Ámantis: desde explorar el catálogo hasta recibir tu paquete discreto.';
+  'Cinco pasos para hacer tu pedido en A’Mantis: desde explorar el catálogo hasta recibir tu paquete discreto.';
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -62,7 +62,7 @@ export default function ComoComprarPage() {
   return (
     <StaticPageShell
       title="Cómo comprar"
-      intro="Comprar en Ámantis es directo: tú armas tu pedido, lo envías por WhatsApp y nosotras coordinamos el resto contigo."
+      intro="Comprar en A’Mantis es directo: tú armas tu pedido, lo envías por WhatsApp y nosotras coordinamos el resto contigo."
     >
       <ol className="space-y-5">
         {STEPS.map((step) => (

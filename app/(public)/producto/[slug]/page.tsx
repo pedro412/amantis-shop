@@ -25,14 +25,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const product = await getProductBySlug(params.slug);
   if (!product) {
     return {
-      title: 'Producto · Ámantis',
-      description: 'Catálogo Ámantis · bienestar e intimidad para mayores de 18 años.',
+      title: 'Producto · A’Mantis',
+      description: 'Catálogo A’Mantis · bienestar e intimidad para mayores de 18 años.',
     };
   }
   const description =
     product.shortDescription ??
-    `${product.name} · ${product.category.name} en Ámantis.`;
-  const title = `${product.name} · Ámantis`;
+    `${product.name} · ${product.category.name} en A’Mantis.`;
+  const title = `${product.name} · A’Mantis`;
   const canonical = `/producto/${product.slug}`;
   const firstImageKey = product.imageKeys[0];
   // 'full' (1200px long edge) instead of 'medium' (600px) — Facebook's
@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'website',
       title,
       description,
-      siteName: 'Ámantis',
+      siteName: 'A’Mantis',
       url: canonical,
       ...(ogImage && { images: [{ url: ogImage, alt: product.name }] }),
     },

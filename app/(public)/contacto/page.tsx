@@ -82,7 +82,7 @@ export default function ContactoPage() {
     {
       icon: FacebookGlyph,
       label: 'Facebook',
-      value: 'Ámantis',
+      value: 'A’Mantis',
       href: 'https://www.facebook.com/profile.php?id=100077885707039',
       hint: 'Promociones y comunidad',
     },

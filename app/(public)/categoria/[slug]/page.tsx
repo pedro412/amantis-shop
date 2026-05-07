@@ -35,12 +35,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const listing = await getCategoryListing(params.slug, EMPTY_FILTERS, 'nuevo');
   if (!listing) {
     return {
-      title: 'Categoría · Ámantis',
-      description: 'Catálogo Ámantis · bienestar e intimidad para mayores de 18 años.',
+      title: 'Categoría · A’Mantis',
+      description: 'Catálogo A’Mantis · bienestar e intimidad para mayores de 18 años.',
     };
   }
-  const title = `${listing.category.name} · Ámantis`;
-  const description = `Productos de ${listing.category.name} disponibles en Ámantis. Pedidos por WhatsApp.`;
+  const title = `${listing.category.name} · A’Mantis`;
+  const description = `Productos de ${listing.category.name} disponibles en A’Mantis. Pedidos por WhatsApp.`;
   const canonical = `/categoria/${params.slug}`;
   return {
     title,

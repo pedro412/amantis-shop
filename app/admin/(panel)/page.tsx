@@ -16,7 +16,7 @@ import {
 import { DashboardCards } from './dashboard-cards';
 
 export const metadata: Metadata = {
-  title: 'Panel · Ámantis',
+  title: 'Panel · A’Mantis',
   robots: { index: false, follow: false },
 };
 

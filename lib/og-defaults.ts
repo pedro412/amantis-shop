@@ -9,7 +9,7 @@ export const DEFAULT_OG_IMAGE = {
   url: '/opengraph-image',
   width: 1200,
   height: 630,
-  alt: 'Ámantis · Bienestar e intimidad',
+  alt: 'A’Mantis · Bienestar e intimidad',
 } as const;
 
 export const DEFAULT_OG_IMAGES = [DEFAULT_OG_IMAGE];

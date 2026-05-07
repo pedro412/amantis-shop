@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { UploadTestClient } from './upload-test-client';
 
 export const metadata: Metadata = {
-  title: 'Upload test · Ámantis',
+  title: 'Upload test · A’Mantis',
   robots: { index: false, follow: false },
 };
 

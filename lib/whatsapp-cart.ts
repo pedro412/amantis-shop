@@ -28,7 +28,7 @@ export function buildOrderMessage(
   const subtotal = items.reduce((acc, i) => acc + i.unitPrice * i.qty, 0);
 
   const out: string[] = [
-    'Hola Ámantis, me gustaría hacer este pedido:',
+    'Hola A’Mantis, me gustaría hacer este pedido:',
     '',
     ...lines,
     '',
