@@ -12,6 +12,36 @@ import { buildWhatsappUrl } from '@/lib/whatsapp';
 import { useCustomerInfo } from './customer-info-context';
 import { MSI_THRESHOLD, MsiHint } from './msi-progress';
 
+/**
+ * Maps a missing-field key (from `getMissingFields`) to the DOM id of the
+ * corresponding input/control in `cart-customer-fields.tsx`. Used by the
+ * primary CTA to scroll + focus the first thing the user is missing instead
+ * of rendering as a dead "disabled" button.
+ */
+const FIELD_IDS: Partial<Record<string, string>> = {
+  shippingType: 'customer-shipping-type',
+  name: 'customer-name',
+  phone: 'customer-phone',
+  localAddress: 'customer-local-address',
+  city: 'customer-city',
+  state: 'customer-state',
+  street: 'customer-street',
+  neighborhood: 'customer-neighborhood',
+  zip: 'customer-zip',
+};
+
+function focusFirstMissing(missing: string[]): void {
+  if (typeof document === 'undefined' || missing.length === 0) return;
+  const id = FIELD_IDS[missing[0]!];
+  if (!id) return;
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // Wait for the smooth scroll to settle before pulling focus — focus()
+  // jumps the page in some browsers and would cancel the smooth scroll.
+  window.setTimeout(() => el.focus({ preventScroll: true }), 320);
+}
+
 export function CartSummary() {
   const { items } = useCart();
   const { info } = useCustomerInfo();
@@ -77,8 +107,19 @@ export function CartSummary() {
           asChild={canSend}
           size="md"
           variant="primary"
-          className="mt-1 w-full"
-          disabled={!canSend}
+          // aria-disabled (not the HTML disabled attr) so the click handler
+          // can still fire and we can scroll/focus the user to the first
+          // missing field instead of doing nothing.
+          aria-disabled={!canSend}
+          className={cn('mt-1 w-full', !canSend && 'opacity-60')}
+          onClick={
+            canSend
+              ? undefined
+              : (e) => {
+                  e.preventDefault();
+                  focusFirstMissing(missing);
+                }
+          }
         >
           {canSend ? (
             <a href={href} target="_blank" rel="noopener noreferrer">
