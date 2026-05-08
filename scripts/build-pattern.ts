@@ -25,7 +25,10 @@ const ROOT = process.cwd();
 const SRC_DIR = resolve(ROOT, 'public/calzones');
 const OUT_PATH = resolve(ROOT, 'public/patterns/calzones.webp');
 
-const TILE = 800;
+const TILE = 480;
+// Multiplied into each piece's alpha at composite time so the pattern reads as
+// a soft watermark behind copy instead of competing with the type.
+const PIECE_ALPHA = 0.4;
 
 type Piece = {
   file: string;
@@ -40,13 +43,13 @@ type Piece = {
 
 // Coordinates are tuned by eye — distribute across the tile, no edge collisions.
 const PIECES: Piece[] = [
-  { file: 'conejo.png',    size: 120, left:  60, top:  50, rotate: -10 },
-  { file: 'handcuff.png',  size: 140, left: 560, top:  70, rotate:   8 },
-  { file: 'jueguete1.png', size: 150, left: 320, top: 200, rotate:  -5 },
-  { file: 'juguete2.png',  size: 170, left:  80, top: 380, rotate:  12 },
-  { file: 'juguete3.png',  size: 150, left: 560, top: 360, rotate:  -8 },
-  { file: 'juguete4.png',  size: 160, left: 180, top: 580, rotate:   4 },
-  { file: 'juguete5.png',  size: 140, left: 500, top: 600, rotate: -12 },
+  { file: 'conejo.png',    size: 78, left:  30, top:  28, rotate: -10 },
+  { file: 'handcuff.png',  size: 86, left: 335, top:  42, rotate:   8 },
+  { file: 'jueguete1.png', size: 90, left: 190, top: 120, rotate:  -5 },
+  { file: 'juguete2.png',  size: 102, left:  45, top: 230, rotate:  12 },
+  { file: 'juguete3.png',  size: 90, left: 335, top: 215, rotate:  -8 },
+  { file: 'juguete4.png',  size: 94, left: 110, top: 350, rotate:   4 },
+  { file: 'juguete5.png',  size: 86, left: 300, top: 360, rotate: -12 },
 ];
 
 async function renderPiece(piece: Piece): Promise<{
@@ -54,11 +57,27 @@ async function renderPiece(piece: Piece): Promise<{
   left: number;
   top: number;
 }> {
-  const buf = await sharp(resolve(SRC_DIR, piece.file))
+  const rotated = await sharp(resolve(SRC_DIR, piece.file))
     .resize({ width: piece.size, height: piece.size, fit: 'inside' })
     .rotate(piece.rotate, {
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     })
+    .ensureAlpha()
+    .toBuffer();
+
+  // Multiply the existing alpha channel by PIECE_ALPHA so the piece reads as a
+  // watermark. `dest-in` keeps the destination (the rotated piece) wherever the
+  // source mask has alpha — a 1×1 white tile at PIECE_ALPHA scales every pixel.
+  const alphaByte = Math.round(PIECE_ALPHA * 255);
+  const buf = await sharp(rotated)
+    .composite([
+      {
+        input: Buffer.from([255, 255, 255, alphaByte]),
+        raw: { width: 1, height: 1, channels: 4 },
+        tile: true,
+        blend: 'dest-in',
+      },
+    ])
     .toBuffer();
 
   // Round-trip through metadata so we can clamp the final position to the
