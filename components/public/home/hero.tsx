@@ -10,7 +10,7 @@ export function HomeHero() {
         {/* Editorial photo. The container is rounded so we let next/image fill
             and rely on object-cover so any aspect ratio fills cleanly. */}
         <Image
-          src="/hero.png"
+          src="/hero.jpeg"
           alt=""
           fill
           priority
