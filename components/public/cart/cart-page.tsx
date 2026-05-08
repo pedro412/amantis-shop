@@ -8,33 +8,52 @@ import { useCart } from '@/components/public/cart-context';
 import { CartCustomerFields } from './cart-customer-fields';
 import { CartEmptyState } from './cart-empty-state';
 import { CartItemRow } from './cart-item-row';
+import { CartLinkHydrator } from './cart-link-hydrator';
 import { CartSummary } from './cart-summary';
 import { CustomerInfoProvider } from './customer-info-context';
 
-export function CartPage() {
+type Props = {
+  /** Optional shared-cart payload from `?state=...`. */
+  linkState?: string;
+};
+
+export function CartPage({ linkState }: Props) {
   const { items, count, hydrated } = useCart();
 
+  // Loading skeleton — keep the providers off the tree so we don't pay for
+  // their effects until we have real data.
   if (!hydrated) return <CartLoading />;
-  if (items.length === 0) return <CartEmptyState />;
 
+  // Empty state still mounts the link hydrator (in case the inbound link
+  // brings the cart back to life). The hydrator silently replaces when the
+  // local cart is empty, so the user lands directly on the cart UI on the
+  // next render.
   return (
     <CustomerInfoProvider>
-      <Header itemCount={count} />
+      {linkState && <CartLinkHydrator state={linkState} />}
 
-      <ul className="flex flex-col divide-y divide-border/60">
-        {items.map((item) => (
-          <li key={item.lineId}>
-            <CartItemRow item={item} />
-          </li>
-        ))}
-      </ul>
+      {items.length === 0 ? (
+        <CartEmptyState />
+      ) : (
+        <>
+          <Header itemCount={count} />
 
-      <CartCustomerFields />
+          <ul className="flex flex-col divide-y divide-border/60">
+            {items.map((item) => (
+              <li key={item.lineId}>
+                <CartItemRow item={item} />
+              </li>
+            ))}
+          </ul>
 
-      {/* Reserve space for the fixed summary panel so the last item isn't hidden. */}
-      <div className="h-56" aria-hidden />
+          <CartCustomerFields />
 
-      <CartSummary />
+          {/* Reserve space for the fixed summary panel so the last item isn't hidden. */}
+          <div className="h-56" aria-hidden />
+
+          <CartSummary />
+        </>
+      )}
     </CustomerInfoProvider>
   );
 }

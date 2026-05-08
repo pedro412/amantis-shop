@@ -22,9 +22,9 @@ export function Logo({ tone = 'primary', size = 22, className }: LogoProps) {
         className,
       )}
       style={{ fontSize: size * 1.05 }}
-      aria-label="Ámantis"
+      aria-label="A’Mantis"
     >
-      ÁMANTIS
+      A’MANTIS
     </span>
   );
 }

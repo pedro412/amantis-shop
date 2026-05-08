@@ -1,8 +1,9 @@
 'use client';
 
-import { Check, ShoppingBag } from 'lucide-react';
+import { Check, MessageCircle, ShoppingBag } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { CartBump } from '@/components/public/cart-bump';
 import { useCart } from '@/components/public/cart-context';
 import { Button } from '@/components/ui/button';
 import { formatMXN } from '@/lib/format';
@@ -33,7 +34,7 @@ export function ProductCTA() {
   const productUrl = origin ? `${origin}/producto/${product.slug}` : '';
   const variantSuffix = selectedVariant ? ` — variante: ${selectedVariant.name}` : '';
   const message = [
-    'Hola Shirley, me interesa este producto:',
+    'Hola A’Mantis, me interesa este producto:',
     '',
     `• ${product.name}${variantSuffix} — ${formatMXN(Number(displayPrice))}`,
     '',
@@ -48,6 +49,7 @@ export function ProductCTA() {
       {
         lineId: `${product.id}::${selectedVariant?.id ?? 'base'}`,
         productId: product.id,
+        slug: product.slug,
         variantId: selectedVariant?.id ?? null,
         name: product.name,
         variantLabel: selectedVariant?.name ?? null,
@@ -68,43 +70,44 @@ export function ProductCTA() {
         'bottom-[calc(3.5rem+env(safe-area-inset-bottom))]',
       )}
     >
-      <div className="flex items-center gap-2 px-3 py-3">
-        <button
+      <div className="flex items-center gap-2 px-3 py-2">
+        <Button
           type="button"
           onClick={onAddToCart}
           disabled={!available || justAdded}
-          aria-label={
-            justAdded ? 'Agregado al carrito' : 'Agregar al carrito'
-          }
+          variant="primary"
+          size="md"
           className={cn(
-            'inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-[1.5px]',
-            'transition-colors duration-base ease-smooth',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
-            justAdded
-              ? 'border-success bg-success text-fg-inverse'
-              : 'border-primary bg-bg text-primary hover:bg-primary-soft active:bg-primary-soft',
-            !available && !justAdded && 'cursor-not-allowed border-border text-fg-subtle hover:bg-bg',
+            'flex-1',
+            // Success flash after adding — overrides primary bg until reset.
+            justAdded && 'bg-success text-fg-inverse hover:bg-success active:bg-success',
           )}
         >
           {justAdded ? (
-            <Check aria-hidden className="h-5 w-5" strokeWidth={2.25} />
+            <>
+              <CartBump>
+                <Check aria-hidden strokeWidth={2.25} />
+              </CartBump>
+              Agregado
+            </>
           ) : (
-            <ShoppingBag aria-hidden className="h-5 w-5" strokeWidth={1.75} />
+            <>
+              <CartBump>
+                <ShoppingBag aria-hidden strokeWidth={1.75} />
+              </CartBump>
+              {available ? 'Agregar al carrito' : 'No disponible'}
+            </>
           )}
-        </button>
+        </Button>
 
-        <Button
-          asChild
-          size="lg"
-          variant="primary"
-          className="flex-1"
-        >
+        <Button asChild variant="secondary" size="icon">
           <a
             href={buildWhatsappUrl(message)}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Pedir por WhatsApp"
           >
-            Pedir por WhatsApp
+            <MessageCircle aria-hidden strokeWidth={1.75} />
           </a>
         </Button>
       </div>

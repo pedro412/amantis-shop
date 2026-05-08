@@ -6,7 +6,7 @@ import { Logo } from '@/components/logo';
 import { ResetForm } from './reset-form';
 
 export const metadata: Metadata = {
-  title: 'Nueva contraseña · Ámantis',
+  title: 'Nueva contraseña · A’Mantis',
   robots: { index: false, follow: false },
 };
 

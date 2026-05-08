@@ -12,7 +12,7 @@ function getResend(): Resend {
 }
 
 function getSenderAddress(): string {
-  return process.env['RESEND_FROM'] ?? 'Ámantis <onboarding@resend.dev>';
+  return process.env['RESEND_FROM'] ?? 'A’Mantis <onboarding@resend.dev>';
 }
 
 type SendPasswordResetParams = {
@@ -31,7 +31,7 @@ export async function sendPasswordResetEmail({
   await getResend().emails.send({
     from: getSenderAddress(),
     to,
-    subject: 'Restablece tu contraseña · Ámantis',
+    subject: 'Restablece tu contraseña · A’Mantis',
     html: renderHtml({ greeting, resetUrl }),
     text: renderText({ greeting, resetUrl }),
   });
@@ -43,7 +43,7 @@ function renderHtml({ greeting, resetUrl }: { greeting: string; resetUrl: string
   <body style="margin:0;background:#FAF6F2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#241914;">
     <div style="max-width:480px;margin:0 auto;padding:40px 28px;">
       <div style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:500;color:#7A0E20;letter-spacing:0.04em;margin-bottom:32px;">
-        ÁMANTIS
+        A’MANTIS
       </div>
       <h1 style="font-family:Georgia,'Times New Roman',serif;font-size:24px;font-weight:500;line-height:1.2;margin:0 0 14px 0;color:#241914;">
         ${greeting}.
@@ -70,12 +70,12 @@ function renderHtml({ greeting, resetUrl }: { greeting: string; resetUrl: string
 function renderText({ greeting, resetUrl }: { greeting: string; resetUrl: string }): string {
   return `${greeting}.
 
-Recibimos una solicitud para cambiar la contraseña de tu cuenta de Ámantis.
+Recibimos una solicitud para cambiar la contraseña de tu cuenta de A’Mantis.
 Abre este enlace para crear una nueva (expira en 1 hora):
 
 ${resetUrl}
 
 Si no fuiste tú, puedes ignorar este correo. Tu contraseña no cambiará.
 
-— Ámantis`;
+— A’Mantis`;
 }

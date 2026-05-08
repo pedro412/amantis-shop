@@ -1,27 +1,50 @@
 'use client';
 
-import { Search, ShoppingBag } from 'lucide-react';
+import { Menu, Search, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 
 import { Logo } from '@/components/logo';
+import { CategoriesDrawer } from '@/components/public/categories-drawer';
 import { cn } from '@/lib/utils';
+import type { DrawerCategory } from '@/server/queries/categories';
 
+import { CartBump, CartCountBadge } from './cart-bump';
 import { useCart } from './cart-context';
 
-export function PublicHeader() {
+type Props = {
+  categories: DrawerCategory[];
+};
+
+export function PublicHeader({ categories }: Props) {
   const { count, hydrated } = useCart();
 
   return (
     <header
       className={cn(
-        'sticky top-0 z-30 border-b border-border/60 bg-bg/85 backdrop-blur-sm',
-        'supports-[backdrop-filter]:bg-bg/70',
+        'sticky top-0 z-30 border-b border-primary/10 bg-header-bg',
       )}
     >
-      <div className="flex h-14 items-center gap-2 px-4">
+      <div className="flex h-14 items-center gap-1 px-3">
+        <CategoriesDrawer
+          categories={categories}
+          trigger={
+            <button
+              type="button"
+              aria-label="Abrir categorías"
+              className={cn(
+                'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-fg',
+                'transition-colors duration-base ease-smooth hover:bg-primary/10',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
+              )}
+            >
+              <Menu aria-hidden className="h-5 w-5" strokeWidth={1.5} />
+            </button>
+          }
+        />
+
         <Link
           href="/"
-          aria-label="Ámantis · Inicio"
+          aria-label="A’Mantis · Inicio"
           className="rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
         >
           <Logo size={20} />
@@ -33,20 +56,18 @@ export function PublicHeader() {
           </IconButton>
 
           <IconButton href="/carrito" label={cartLabel(count)}>
-            <span className="relative inline-flex">
+            <CartBump>
               <ShoppingBag aria-hidden className="h-5 w-5" strokeWidth={1.5} />
               {hydrated && count > 0 && (
-                <span
-                  aria-hidden
+                <CartCountBadge
+                  count={count}
                   className={cn(
                     'absolute -right-1.5 -top-1.5 inline-flex h-4 min-w-[16px] items-center justify-center',
                     'rounded-full bg-primary px-1 font-sans text-[10px] font-semibold text-primary-foreground',
                   )}
-                >
-                  {count > 99 ? '99+' : count}
-                </span>
+                />
               )}
-            </span>
+            </CartBump>
           </IconButton>
         </div>
       </div>
@@ -75,7 +96,7 @@ function IconButton({
       aria-label={label}
       className={cn(
         'inline-flex h-11 w-11 items-center justify-center rounded-full text-fg',
-        'transition-colors duration-base ease-smooth hover:bg-surface-alt',
+        'transition-colors duration-base ease-smooth hover:bg-primary/10',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30',
       )}
     >

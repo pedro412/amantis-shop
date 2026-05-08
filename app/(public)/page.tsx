@@ -4,20 +4,22 @@ import { CategoriesGrid } from '@/components/public/home/categories-grid';
 import { HomeHero } from '@/components/public/home/hero';
 import { ProductsRow } from '@/components/public/home/products-row';
 import { TrustStrip } from '@/components/public/home/trust-strip';
+import { DEFAULT_OG_IMAGES, DEFAULT_TWITTER_IMAGES } from '@/lib/og-defaults';
 import {
   JsonLd,
   organizationSchema,
   websiteSchema,
 } from '@/lib/structured-data';
+import { getDrawerCategories } from '@/server/queries/categories';
 import {
   getFeaturedProducts,
   getHomeCategories,
   getNovedades,
 } from '@/server/queries/home';
 
-const HOME_TITLE = 'Ámantis · Bienestar e intimidad';
+const HOME_TITLE = 'A’Mantis · Bienestar e intimidad';
 const HOME_DESCRIPTION =
-  'Catálogo de productos para el bienestar y la intimidad. Pedidos por WhatsApp con envío local. Solo para mayores de 18 años.';
+  'Catálogo de productos para el bienestar y la intimidad. Pedidos por WhatsApp con entrega local y envío nacional. Solo para mayores de 18 años.';
 
 export const metadata: Metadata = {
   title: HOME_TITLE,
@@ -28,10 +30,12 @@ export const metadata: Metadata = {
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
     url: '/',
+    images: DEFAULT_OG_IMAGES,
   },
   twitter: {
     card: 'summary_large_image',
     title: HOME_TITLE,
+    images: DEFAULT_TWITTER_IMAGES,
     description: HOME_DESCRIPTION,
   },
 };
@@ -41,21 +45,22 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function Home() {
-  const [categories, featured, novedades] = await Promise.all([
+  const [categories, allCategories, featured, novedades] = await Promise.all([
     getHomeCategories(),
+    getDrawerCategories(),
     getFeaturedProducts(),
     getNovedades(),
   ]);
 
   return (
-    <>
+    <div className="bg-calzones-pattern bg-repeat">
       <JsonLd data={[organizationSchema(), websiteSchema()]} />
       <HomeHero />
-      <CategoriesGrid categories={categories} />
+      <CategoriesGrid categories={categories} allCategories={allCategories} />
       <ProductsRow title="Destacados" products={featured} />
       <ProductsRow title="Novedades" products={novedades} />
       <TrustStrip />
       <div className="h-8" aria-hidden />
-    </>
+    </div>
   );
 }

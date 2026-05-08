@@ -5,6 +5,7 @@ import { FilterSheet } from '@/components/public/listing/filter-sheet';
 import { ListingHeader } from '@/components/public/listing/listing-header';
 import { ProductsGrid } from '@/components/public/listing/products-grid';
 import { SortSelect } from '@/components/public/listing/sort-select';
+import { DEFAULT_OG_IMAGES, DEFAULT_TWITTER_IMAGES } from '@/lib/og-defaults';
 import { JsonLd, breadcrumbSchema } from '@/lib/structured-data';
 import {
   type ListingFilters,
@@ -34,12 +35,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const listing = await getCategoryListing(params.slug, EMPTY_FILTERS, 'nuevo');
   if (!listing) {
     return {
-      title: 'Categoría · Ámantis',
-      description: 'Catálogo Ámantis · bienestar e intimidad para mayores de 18 años.',
+      title: 'Categoría · A’Mantis',
+      description: 'Catálogo A’Mantis · bienestar e intimidad para mayores de 18 años.',
     };
   }
-  const title = `${listing.category.name} · Ámantis`;
-  const description = `Productos de ${listing.category.name} disponibles en Ámantis. Pedidos por WhatsApp.`;
+  const title = `${listing.category.name} · A’Mantis`;
+  const description = `Productos de ${listing.category.name} disponibles en A’Mantis. Pedidos por WhatsApp.`;
   const canonical = `/categoria/${params.slug}`;
   return {
     title,
@@ -50,11 +51,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: canonical,
+      images: DEFAULT_OG_IMAGES,
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: DEFAULT_TWITTER_IMAGES,
     },
   };
 }

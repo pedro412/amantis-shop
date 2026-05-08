@@ -10,13 +10,16 @@ import {
 } from 'react';
 
 const STORAGE_KEY = 'amantis.cart';
-const STORAGE_VERSION = 1;
+// v2 added `slug` so cart rows can link back to the product page.
+const STORAGE_VERSION = 2;
 
 export type CartItem = {
   /** Stable line key — composed of productId + variantId so two variants of
    *  the same product live as separate lines. */
   lineId: string;
   productId: string;
+  /** Product slug for navigating back to /producto/[slug] from the cart. */
+  slug: string;
   variantId: string | null;
   name: string;
   variantLabel: string | null;
@@ -36,10 +39,18 @@ type CartContextValue = {
   /** Hydrated flag — false during SSR + first paint, true once localStorage
    *  has been read. Use this to suppress badge flicker. */
   hydrated: boolean;
+  /** Monotonic counter incremented every time `add()` is called. Consumers
+   *  watch this to trigger micro-animations on the cart icon (LIT-265). It
+   *  intentionally does NOT bump on setQty / remove / replaceAll — only the
+   *  "I just added a product" intent should ripple. */
+  bumpedAt: number;
   add: (item: Omit<CartItem, 'qty'>, qty?: number) => void;
   setQty: (lineId: string, qty: number) => void;
   remove: (lineId: string) => void;
   clear: () => void;
+  /** Replace the entire cart with the given items. Used when hydrating from
+   *  a shared cart link (?state=...). */
+  replaceAll: (items: CartItem[]) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -78,6 +89,7 @@ function writePersisted(items: CartItem[]) {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [bumpedAt, setBumpedAt] = useState(0);
 
   // Hydrate from localStorage on first client render. Doing this in an effect
   // (not useState initializer) keeps SSR output deterministic.
@@ -101,6 +113,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       next[idx] = { ...existing, qty: existing.qty + qty };
       return next;
     });
+    setBumpedAt((n) => n + 1);
   }, []);
 
   const setQty = useCallback<CartContextValue['setQty']>((lineId, qty) => {
@@ -118,11 +131,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems([]);
   }, []);
 
+  const replaceAll = useCallback<CartContextValue['replaceAll']>((next) => {
+    setItems(next);
+  }, []);
+
   const count = useMemo(() => items.reduce((acc, i) => acc + i.qty, 0), [items]);
 
   const value = useMemo<CartContextValue>(
-    () => ({ items, count, hydrated, add, setQty, remove, clear }),
-    [items, count, hydrated, add, setQty, remove, clear],
+    () => ({ items, count, hydrated, bumpedAt, add, setQty, remove, clear, replaceAll }),
+    [items, count, hydrated, bumpedAt, add, setQty, remove, clear, replaceAll],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

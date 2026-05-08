@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Logo } from '@/components/logo';
 
 export const metadata: Metadata = {
-  title: 'Acceso restringido · Ámantis',
+  title: 'Acceso restringido · A’Mantis',
   description: 'Este sitio es solo para mayores de 18 años.',
   robots: { index: false, follow: false },
 };

@@ -25,17 +25,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const product = await getProductBySlug(params.slug);
   if (!product) {
     return {
-      title: 'Producto · Ámantis',
-      description: 'Catálogo Ámantis · bienestar e intimidad para mayores de 18 años.',
+      title: 'Producto · A’Mantis',
+      description: 'Catálogo A’Mantis · bienestar e intimidad para mayores de 18 años.',
     };
   }
   const description =
     product.shortDescription ??
-    `${product.name} · ${product.category.name} en Ámantis.`;
-  const title = `${product.name} · Ámantis`;
+    `${product.name} · ${product.category.name} en A’Mantis.`;
+  const title = `${product.name} · A’Mantis`;
   const canonical = `/producto/${product.slug}`;
   const firstImageKey = product.imageKeys[0];
-  const ogImage = firstImageKey ? tryImagePublicUrl(firstImageKey, 'medium') : null;
+  // 'full' (1200px long edge) instead of 'medium' (600px) — Facebook's
+  // Sharing Debugger downgrades or skips images under ~1200px wide, which
+  // is why product previews were showing up blank.
+  const ogImage = firstImageKey ? tryImagePublicUrl(firstImageKey, 'full') : null;
   return {
     title,
     description,
@@ -44,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'website',
       title,
       description,
-      siteName: 'Ámantis',
+      siteName: 'A’Mantis',
       url: canonical,
       ...(ogImage && { images: [{ url: ogImage, alt: product.name }] }),
     },
@@ -106,8 +109,8 @@ export default async function ProductoPage({ params }: PageProps) {
 
       <RelatedProducts products={related} />
 
-      {/* Reserve space for the fixed CTA bar (h-[72px] = 12px padding * 2 + 48px button). */}
-      <div className="h-24" aria-hidden />
+      {/* Reserve space for the fixed CTA bar (~60px = 8px padding * 2 + 44px button + 1px border). */}
+      <div className="h-20" aria-hidden />
 
       <ProductCTA />
     </ProductSelectionProvider>

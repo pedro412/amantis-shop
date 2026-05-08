@@ -19,7 +19,7 @@ const cormorant = Cormorant_Garamond({
 
 import { SITE_URL } from '@/lib/site-url';
 
-const SITE_NAME = 'Ámantis';
+const SITE_NAME = 'A’Mantis';
 const SITE_DESCRIPTION =
   'Catálogo digital — bienestar e intimidad para mayores de 18 años.';
 
@@ -48,7 +48,18 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#FAF6F1',
+  // Same theme-color emitted under both media queries so Samsung Internet's
+  // Night mode (which inverts the address bar tint) still picks up the light
+  // brand color instead of guessing a dark variant.
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#FAF6F1' },
+    { media: '(prefers-color-scheme: dark)', color: '#FAF6F1' },
+  ],
+  // 'only light' is stricter than 'light' alone — tells the engine we never
+  // want a dark variant of any UA-styled control. Pair this with the explicit
+  // html background and the prefers-color-scheme: dark override in
+  // globals.css to cover browsers that ignore color-scheme entirely.
+  colorScheme: 'only light',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -56,7 +67,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${inter.variable} ${cormorant.variable}`}>
+    // bg-bg on <html> (in addition to body) prevents Chrome's "Force dark
+    // mode" heuristic from auto-darkening the root canvas. The flag skips
+    // elements with an explicit non-light background outside its dark-target
+    // luminance band.
+    <html
+      lang="es"
+      className={`${inter.variable} ${cormorant.variable} bg-bg`}
+    >
       <body className="bg-bg text-fg antialiased">{children}</body>
     </html>
   );

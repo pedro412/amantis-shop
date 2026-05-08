@@ -2,6 +2,7 @@
 
 import { ImageIcon, Minus, Plus, X } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { useCart, type CartItem } from '@/components/public/cart-context';
 import { formatMXN } from '@/lib/format';
@@ -23,33 +24,72 @@ export function CartItemRow({ item }: Props) {
   const inc = () => setQty(item.lineId, Math.min(QTY_MAX, item.qty + 1));
   const del = () => remove(item.lineId);
 
+  // Old v1 carts (before slug was tracked) get cleared by the version bump,
+  // so in practice item.slug is always present. Guard kept for type safety.
+  const productHref = item.slug ? `/producto/${item.slug}` : null;
+
   return (
     <article className="flex items-start gap-3 px-4 py-4">
-      <div className="relative h-[76px] w-[76px] shrink-0 overflow-hidden rounded-md bg-surface-alt">
-        {src ? (
-          <Image
-            src={src}
-            alt=""
-            fill
-            sizes="76px"
-            className="object-cover"
-            unoptimized
-          />
-        ) : (
-          <div
-            aria-hidden
-            className="flex h-full w-full items-center justify-center bg-primary-soft text-primary/50"
-          >
-            <ImageIcon className="h-5 w-5" strokeWidth={1.5} />
-          </div>
-        )}
-      </div>
+      {productHref ? (
+        <Link
+          href={productHref}
+          aria-label={`Ver ${item.name}`}
+          className="relative h-[76px] w-[76px] shrink-0 overflow-hidden rounded-md bg-surface-alt focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+        >
+          {src ? (
+            <Image
+              src={src}
+              alt=""
+              fill
+              sizes="76px"
+              className="object-cover"
+              unoptimized
+            />
+          ) : (
+            <div
+              aria-hidden
+              className="flex h-full w-full items-center justify-center bg-primary-soft text-primary/50"
+            >
+              <ImageIcon className="h-5 w-5" strokeWidth={1.5} />
+            </div>
+          )}
+        </Link>
+      ) : (
+        <div className="relative h-[76px] w-[76px] shrink-0 overflow-hidden rounded-md bg-surface-alt">
+          {src ? (
+            <Image
+              src={src}
+              alt=""
+              fill
+              sizes="76px"
+              className="object-cover"
+              unoptimized
+            />
+          ) : (
+            <div
+              aria-hidden
+              className="flex h-full w-full items-center justify-center bg-primary-soft text-primary/50"
+            >
+              <ImageIcon className="h-5 w-5" strokeWidth={1.5} />
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="min-w-0 flex-1">
         <div className="flex items-start gap-2">
-          <p className="min-w-0 flex-1 font-sans text-[14px] font-medium leading-snug text-fg">
-            {item.name}
-          </p>
+          {productHref ? (
+            <Link
+              href={productHref}
+              className="min-w-0 flex-1 font-sans text-[14px] font-medium leading-snug text-fg hover:text-primary focus-visible:outline-none focus-visible:underline"
+            >
+              {item.name}
+            </Link>
+          ) : (
+            <p className="min-w-0 flex-1 font-sans text-[14px] font-medium leading-snug text-fg">
+              {item.name}
+            </p>
+          )}
           <button
             type="button"
             aria-label={`Quitar ${item.name}`}

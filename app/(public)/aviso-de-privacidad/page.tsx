@@ -5,12 +5,13 @@ import {
   StaticPageShell,
   StaticSection,
 } from '@/components/public/static-page-shell';
+import { DEFAULT_OG_IMAGES } from '@/lib/og-defaults';
 
 export const dynamic = 'force-static';
 
 const TITLE = 'Aviso de privacidad';
 const DESCRIPTION =
-  'Cómo Ámantis recolecta, usa y protege tus datos personales conforme a la LFPDPPP en México.';
+  'Cómo A’Mantis recolecta, usa y protege tus datos personales conforme a la LFPDPPP en México.';
 const LAST_UPDATED = '29 de abril de 2026';
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: '/aviso-de-privacidad',
+    images: DEFAULT_OG_IMAGES,
   },
 };
 
@@ -33,7 +35,7 @@ export default function AvisoDePrivacidadPage() {
     >
       <StaticSection title="1. Identidad del responsable">
         <p>
-          Ámantis (en adelante, el “Responsable”), con operación en Ciudad del
+          A’Mantis (en adelante, el “Responsable”), con operación en Ciudad del
           Carmen, Campeche, México, es responsable del tratamiento de los datos
           personales que recabe a través de este sitio web y de los canales de
           contacto puestos a tu disposición.
@@ -141,7 +143,7 @@ export default function AvisoDePrivacidadPage() {
         Este aviso es una versión adaptada con base en la Ley Federal de
         Protección de Datos Personales en Posesión de los Particulares
         (LFPDPPP). Su redacción podrá ajustarse tras revisión legal específica
-        para Ámantis.
+        para A’Mantis.
       </p>
     </StaticPageShell>
   );

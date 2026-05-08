@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { StaticPageShell } from '@/components/public/static-page-shell';
+import { DEFAULT_OG_IMAGES } from '@/lib/og-defaults';
 
 export const dynamic = 'force-static';
 
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: '/faq',
+    images: DEFAULT_OG_IMAGES,
   },
 };
 
@@ -27,7 +29,7 @@ const FAQS = [
   },
   {
     q: '¿Qué formas de pago aceptan?',
-    a: 'Aceptamos transferencia bancaria. Te compartimos los datos por WhatsApp una vez confirmado el pedido y el costo final con envío.',
+    a: 'Tres opciones: efectivo (solo entrega local en Ciudad del Carmen), transferencia bancaria por SPEI, o tarjeta de crédito/débito vía link de pago que te enviamos por WhatsApp. Con tarjeta de crédito participante puedes pagar a 3 meses sin intereses en compras desde $1,500.',
   },
   {
     q: '¿Cuánto tarda mi envío?',
@@ -43,7 +45,7 @@ const FAQS = [
   },
   {
     q: '¿Hay una edad mínima para comprar?',
-    a: 'Sí. Ámantis es exclusivamente para personas mayores de 18 años. Por eso al entrar al sitio se solicita confirmar la edad.',
+    a: 'Sí. A’Mantis es exclusivamente para personas mayores de 18 años. Por eso al entrar al sitio se solicita confirmar la edad.',
   },
   {
     q: '¿Mis datos son confidenciales?',

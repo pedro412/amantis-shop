@@ -2,6 +2,7 @@ import { MapPin, MessageCircle } from 'lucide-react';
 import type { Metadata } from 'next';
 
 import { StaticPageShell } from '@/components/public/static-page-shell';
+import { DEFAULT_OG_IMAGES } from '@/lib/og-defaults';
 import { buildWhatsappUrl, getWhatsappDisplayNumber } from '@/lib/whatsapp';
 
 export const dynamic = 'force-static';
@@ -55,6 +56,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: '/contacto',
+    images: DEFAULT_OG_IMAGES,
   },
 };
 
@@ -80,7 +82,7 @@ export default function ContactoPage() {
     {
       icon: FacebookGlyph,
       label: 'Facebook',
-      value: 'Ámantis Lencería',
+      value: 'A’Mantis',
       href: 'https://www.facebook.com/profile.php?id=100077885707039',
       hint: 'Promociones y comunidad',
     },

@@ -5,7 +5,7 @@ import { Logo } from '@/components/logo';
 import { ForgotForm } from './forgot-form';
 
 export const metadata: Metadata = {
-  title: 'Recuperar contraseña · Ámantis',
+  title: 'Recuperar contraseña · A’Mantis',
   robots: { index: false, follow: false },
 };
 

@@ -10,7 +10,7 @@ import { prisma } from '@/server/lib/prisma';
 import { CategoriasList, type ParentNode } from './categorias-list';
 
 export const metadata: Metadata = {
-  title: 'Categorías · Ámantis',
+  title: 'Categorías · A’Mantis',
   robots: { index: false, follow: false },
 };
 

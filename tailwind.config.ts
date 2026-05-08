@@ -25,6 +25,7 @@ const config: Config = {
         },
         // Warm neutrals
         bg: 'hsl(var(--bg))',
+        'header-bg': 'hsl(var(--header-bg))',
         surface: {
           DEFAULT: 'hsl(var(--surface))',
           alt: 'hsl(var(--surface-alt))',
@@ -95,6 +96,11 @@ const config: Config = {
         label: ['14px', { lineHeight: '1.40' }],
         small: ['13px', { lineHeight: '1.45' }],
         caption: ['12px', { lineHeight: '1.40' }],
+      },
+      backgroundImage: {
+        // Composed in scripts/build-pattern.ts from the individual PNGs in
+        // public/calzones/ — re-run that script if you swap any asset.
+        'calzones-pattern': "url('/patterns/calzones.webp')",
       },
       borderRadius: {
         sm: '6px',

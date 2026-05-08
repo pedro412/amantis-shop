@@ -9,7 +9,7 @@ import { prisma } from '@/server/lib/prisma';
 import { ProductForm } from '../product-form';
 
 export const metadata: Metadata = {
-  title: 'Nuevo producto · Ámantis',
+  title: 'Nuevo producto · A’Mantis',
   robots: { index: false, follow: false },
 };
 

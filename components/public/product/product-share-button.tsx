@@ -17,7 +17,7 @@ export function ProductShareButton({ name }: Props) {
     if (busy || typeof window === 'undefined') return;
     setBusy(true);
     const url = window.location.href;
-    const title = `${name} · Ámantis`;
+    const title = `${name} · A’Mantis`;
 
     try {
       if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {

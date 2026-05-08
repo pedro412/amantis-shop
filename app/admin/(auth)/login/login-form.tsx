@@ -8,7 +8,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Input, type InputValidity } from '@/components/ui/input';
+import { isEmailValid } from '@/lib/validators';
 import { loginAction } from '@/server/actions/auth';
 
 const schema = z.object({
@@ -27,12 +28,28 @@ export function LoginForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    watch,
+    formState: { errors, touchedFields },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
     mode: 'onSubmit',
   });
+
+  const email = watch('email');
+  const password = watch('password');
+  const emailValidity: InputValidity = !email
+    ? 'idle'
+    : isEmailValid(email)
+      ? 'valid'
+      : touchedFields.email || errors.email
+        ? 'invalid'
+        : 'idle';
+  const passwordValidity: InputValidity = !password
+    ? 'idle'
+    : password.length >= 1
+      ? 'valid'
+      : 'idle';
 
   const onSubmit = handleSubmit((values) => {
     setServerError(undefined);
@@ -70,6 +87,7 @@ export function LoginForm() {
             autoCapitalize="none"
             spellCheck={false}
             disabled={pending}
+            validity={emailValidity}
             {...register('email')}
           />
         </Field>
@@ -84,6 +102,7 @@ export function LoginForm() {
             type="password"
             autoComplete="current-password"
             disabled={pending}
+            validity={passwordValidity}
             {...register('password')}
           />
         </Field>

@@ -6,13 +6,14 @@ import {
   StaticSection,
 } from '@/components/public/static-page-shell';
 import { Button } from '@/components/ui/button';
+import { DEFAULT_OG_IMAGES } from '@/lib/og-defaults';
 import { buildWhatsappUrl } from '@/lib/whatsapp';
 
 export const dynamic = 'force-static';
 
 const TITLE = 'Cómo comprar';
 const DESCRIPTION =
-  'Cinco pasos para hacer tu pedido en Ámantis: desde explorar el catálogo hasta recibir tu paquete discreto.';
+  'Cinco pasos para hacer tu pedido en A’Mantis: desde explorar el catálogo hasta recibir tu paquete discreto.';
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: '/como-comprar',
+    images: DEFAULT_OG_IMAGES,
   },
 };
 
@@ -60,7 +62,7 @@ export default function ComoComprarPage() {
   return (
     <StaticPageShell
       title="Cómo comprar"
-      intro="Comprar en Ámantis es directo: tú armas tu pedido, lo envías por WhatsApp y nosotras coordinamos el resto contigo."
+      intro="Comprar en A’Mantis es directo: tú armas tu pedido, lo envías por WhatsApp y nosotras coordinamos el resto contigo."
     >
       <ol className="space-y-5">
         {STEPS.map((step) => (
@@ -78,11 +80,13 @@ export default function ComoComprarPage() {
         ))}
       </ol>
 
-      <StaticSection title="Pago">
-        <p>
-          Aceptamos transferencia bancaria. Te compartimos los datos por
-          WhatsApp una vez confirmado tu pedido y el costo final con envío.
-        </p>
+      <StaticSection title="Métodos de pago">
+        <p>Aceptamos tres formas de pago. Coordinamos cuál usas durante la conversación de WhatsApp:</p>
+        <ul className="ml-5 list-disc space-y-1">
+          <li><strong>Efectivo</strong> — solo para entrega local en Ciudad del Carmen (al recoger en local o al recibir el mandadito).</li>
+          <li><strong>Transferencia bancaria (SPEI)</strong> — para todos los pedidos. Te pasamos los datos por WhatsApp una vez confirmado el pedido.</li>
+          <li><strong>Tarjeta de crédito o débito</strong> — vía link de pago que te enviamos por WhatsApp. Con tarjeta de crédito participante puedes pagar a 3 meses sin intereses en compras desde $1,500.</li>
+        </ul>
       </StaticSection>
 
       <StaticSection title="Tiempos de envío">

@@ -8,7 +8,7 @@ import { tryImagePublicUrl } from '@/lib/image-url';
 import { SITE_URL } from '@/lib/site-url';
 import { getWhatsappNumber } from '@/lib/whatsapp';
 
-const SITE_NAME = 'Ámantis';
+const SITE_NAME = 'A’Mantis';
 
 type Json = Record<string, unknown>;
 
