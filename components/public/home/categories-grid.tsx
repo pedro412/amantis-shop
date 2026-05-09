@@ -1,23 +1,24 @@
-import { LayoutGrid } from 'lucide-react';
+'use client';
 
-import { CategoriesDrawer } from '@/components/public/categories-drawer';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
+
 import { CategoryCard } from '@/components/public/category-card';
-import type { DrawerCategory } from '@/server/queries/categories';
 import type { HomeCategory } from '@/server/queries/home';
 
 const HOME_LIMIT = 6;
 
 type Props = {
   categories: HomeCategory[];
-  /** Full set used by the drawer when the grid is capped. */
-  allCategories: DrawerCategory[];
 };
 
-export function CategoriesGrid({ categories, allCategories }: Props) {
+export function CategoriesGrid({ categories }: Props) {
+  const [expanded, setExpanded] = useState(false);
+
   if (categories.length === 0) return null;
 
-  const visible = categories.slice(0, HOME_LIMIT);
-  const showSeeAll = categories.length > HOME_LIMIT;
+  const showToggle = categories.length > HOME_LIMIT;
+  const visible = expanded ? categories : categories.slice(0, HOME_LIMIT);
 
   return (
     <section className="px-4 pt-8">
@@ -35,20 +36,21 @@ export function CategoriesGrid({ categories, allCategories }: Props) {
         ))}
       </ul>
 
-      {showSeeAll && (
+      {showToggle && (
         <div className="mt-3">
-          <CategoriesDrawer
-            categories={allCategories}
-            trigger={
-              <button
-                type="button"
-                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-primary text-primary font-sans text-[13px] font-medium transition-colors hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
-              >
-                <LayoutGrid aria-hidden className="h-4 w-4" strokeWidth={1.75} />
-                Ver todas las categorías
-              </button>
-            }
-          />
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-primary text-primary font-sans text-[13px] font-medium transition-colors hover:bg-primary-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+          >
+            {expanded ? (
+              <ChevronUp aria-hidden className="h-4 w-4" strokeWidth={1.75} />
+            ) : (
+              <ChevronDown aria-hidden className="h-4 w-4" strokeWidth={1.75} />
+            )}
+            {expanded ? 'Ver menos' : 'Ver todas las categorías'}
+          </button>
         </div>
       )}
     </section>
